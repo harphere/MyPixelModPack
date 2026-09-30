@@ -1,0 +1,16 @@
+plugins { id 'com.android.application' }
+android {
+ namespace 'dev.chet.mypixelmodpack'
+ compileSdk 36
+ defaultConfig { applicationId 'dev.chet.mypixelmodpack'; minSdk 35; targetSdk 28; versionCode 20; versionName '2.0.0' }
+ signingConfigs { pack { storeFile file('pack-development.jks'); storePassword 'android'; keyAlias 'pack'; keyPassword 'android' } }
+ buildTypes { release { minifyEnabled false; signingConfig signingConfigs.pack } }
+ lint { disable 'ExpiredTargetSdkVersion' }
+ testOptions { unitTests.includeAndroidResources = true }
+ compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}
+dependencies {
+ compileOnly 'de.robv.android.xposed:api:82'
+ testImplementation 'junit:junit:4.13.2'
+ testImplementation 'org.robolectric:robolectric:4.15.1'
+}
