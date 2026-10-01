@@ -1,6 +1,7 @@
 package dev.chet.mypixelmodpack;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.ClipData;
@@ -36,7 +37,7 @@ public final class HomeActivity extends Activity {
         list.setPadding(pad, pad, pad, pad);
         ScrollView scroll = new ScrollView(this); scroll.addView(list);
         TextView intro = new TextView(this);
-        intro.setText("My Pixel Mod Pack 2.0.0\n\nChoose features, disable their matching standalone modules in Vector / LSPosed, and reboot. Every switch starts OFF in this refreshed version. Earlier pack switches are ignored. Changes take effect after reboot.");
+        intro.setText("My Pixel Mod Pack 2.0.1\n\nChoose features, disable their matching standalone modules in Vector / LSPosed, and reboot. Fresh installs start OFF. Upgrading from 2.0.0 preserves your switches and settings. Changes take effect after reboot.");
         intro.setTextSize(17); list.addView(intro);
         for (String[] feature : FEATURES) {
             CheckBox toggle = new CheckBox(this);
@@ -52,16 +53,23 @@ public final class HomeActivity extends Activity {
                 list.addView(settings);
             }
         }
-        Button diagnostics = new Button(this); diagnostics.setText("Copy pack startup diagnostics");
+        Button diagnostics = new Button(this); diagnostics.setText("Show / copy pack startup diagnostics");
         diagnostics.setOnClickListener(v -> {
-            StringBuilder text = new StringBuilder("My Pixel Mod Pack 2.0.0\nSaved switches (reboot required):\n");
+            StringBuilder text = new StringBuilder("My Pixel Mod Pack 2.0.1\nSaved switches (reboot required):\n");
             for (String[] feature : FEATURES) text.append(feature[0]).append('=').append(prefs.getBoolean(feature[0], false)).append('\n');
             text.append("\nLatest process reports (epoch milliseconds):\n");
             Map<String, ?> reports = new TreeMap<>(getSharedPreferences("diagnostics_v2", 0).getAll());
             if (reports.isEmpty()) text.append("No process reports. Confirm module enabled, scope and reboot.\n");
             for (Map.Entry<String, ?> report : reports.entrySet()) text.append(report.getKey()).append(": ").append(report.getValue()).append('\n');
-            ((ClipboardManager) getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("Pack diagnostics", text));
-            Toast.makeText(this, "Diagnostics copied. Also capture Vector logs for detailed hook errors.", Toast.LENGTH_LONG).show();
+            TextView output = new TextView(this);
+            output.setText(text.toString()); output.setTextIsSelectable(true);
+            output.setPadding(pad, pad, pad, pad);
+            ScrollView reportScroll = new ScrollView(this); reportScroll.addView(output);
+            new AlertDialog.Builder(this).setTitle("Pack 2.0.1 startup diagnostics")
+                .setView(reportScroll).setPositiveButton("Copy all", (dialog, which) -> {
+                    ((ClipboardManager) getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("Pack diagnostics", text.toString()));
+                    Toast.makeText(this, "Full report copied", Toast.LENGTH_LONG).show();
+                }).setNegativeButton("Close", null).show();
         });
         list.addView(diagnostics);
         TextView scope = new TextView(this);

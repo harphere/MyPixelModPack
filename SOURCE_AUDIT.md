@@ -15,3 +15,5 @@
 Provider authorities are all under the combined package. The preference stores used by navigation icons, navigation matching, Vo settings, network display and the master switches are independent. Appearance settings in the standalone packages are not automatically imported.
 
 No module constructor runs from the pack's LSPosed entry constructor. No feature preference is read during zygote specialization. All component instances belong to the target process and are initialized with its class loader.
+
+2.0.1 changes only dispatcher bootstrap boundaries and reporting UI. Component hook bodies and settings transport are unchanged from 2.0.0. The process startup claim persists after success or a potentially partial exception, and releases only after an explicit no-components-installed settings failure.

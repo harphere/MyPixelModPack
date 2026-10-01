@@ -44,6 +44,9 @@ for package, store in [('navdotstyle', 'nav_icons_v2'), ('navbarmatch', 'nav_mat
         assert f'"{store}"' in (java / f'com/chet/{package}/{name}').read_text()
 assert '"features_v2"' in dispatcher and '"features_v2"' in home
 assert 'Application.class, "attach", Context.class' in dispatcher
+assert 'Instrumentation.class, "callApplicationOnCreate", Application.class' in dispatcher
+assert 'AndroidAppHelper.currentApplication()' in dispatcher
+assert 'startup.run(key,' in dispatcher
 assert 'catch (Throwable error)' in dispatcher
 
 android = '{http://schemas.android.com/apk/res/android}'

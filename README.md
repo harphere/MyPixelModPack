@@ -1,12 +1,24 @@
-# My Pixel Mod Pack — refreshed 2.0.0
+# My Pixel Mod Pack 2.0.1 — launcher startup fix
+
+This update adds startup paths for Vector processes where Application.attach has already happened when the module loads. It checks an already attached application, listens for attach, and also starts before Instrumentation calls Application.onCreate. Initialization occurs at most once per package/process. A settings-provider failure that installed no components can retry at the next boundary. If the host starts before unlock, it also retries when Android reports the user unlocked.
+
+Upgrade directly from 2.0.0; the signing key, application ID, switches and appearance settings are unchanged. No uninstall is needed. Upload all ZIP contents including `.github/workflows/build.yml`; run **Build Refreshed My Pixel Mod Pack** and download `MyPixelModPack-refreshed-v2.0.1`.
+
+Keep scope on your installed Launcher3 and Gboard. Pixel Launcher is only a scope option when that app actually exists on the phone. Nova is not the Quickstep taskbar host used by these component hooks. After installing, confirm cursor, OPA and navigation-icon switches are ON, their matching standalone modules are disabled, and reboot the phone.
+
+The diagnostics button now displays the complete report in a selectable on-screen dialog with **Copy all**. This avoids relying only on pasted clipboard text. Reports distinguish dispatcher/settings problems from component hook errors; `ON; entry point returned` does not mean every hook was available.
+
+Twelve automated tests, release build, lint and APK entry/signature checks are documented in VALIDATION.md. Vector injection timing and the phone's launcher hooks still need device verification. The absence of component logs pointed to startup routing, but without a dispatcher log we cannot prove the missed-attach hypothesis was the only cause.
+
+The original 2.0.0 integration notes follow (first-install instructions apply only when coming from a v1.x pack).
 
 One installable legacy LSPosed APK containing Battery Gradient, Gboard cursor arrows, mobile type icons, VoLTE/VoWiFi icons, OPA Home, navigation icons, Nav Bar Status Match, the network up/down indicator, and Double Tap 2 Wake. All nine switches start OFF. This source replaces the earlier pack's startup and settings integration; Android device behavior still requires testing.
 
 ## Build in GitHub Actions
 
-For the cleanest rebuild, use a new empty repository and upload this ZIP's contents to its root. Include `.github/workflows/build.yml`, `scripts`, the complete `app` folder and `app/pack-development.jks`. Verify the workflow is named **Build Refreshed My Pixel Mod Pack**. Run **Actions → Build Refreshed My Pixel Mod Pack → Run workflow**. Download the `MyPixelModPack-refreshed-v2.0.0` artifact after the tests, release build, lint and APK entry checks pass.
+For the cleanest rebuild, use a new empty repository and upload this ZIP's contents to its root. Include `.github/workflows/build.yml`, `scripts`, the complete `app` folder and `app/pack-development.jks`. Verify the workflow is named **Build Refreshed My Pixel Mod Pack**. Run **Actions → Build Refreshed My Pixel Mod Pack → Run workflow**. Download the `MyPixelModPack-refreshed-v2.0.1` artifact after the tests, release build, lint and APK entry checks pass.
 
-If you reuse the old repository, replace the workflow too. It removes obsolete modern API application classes and the old FeatureGate before checking the source. Do not reuse a v1.x workflow with its old entry-count checks. The APK now has exactly ONE legacy entry: `dev.chet.mypixelmodpack.PackDispatcher`; that dispatcher routes all nine components.
+If you reuse the old repository, replace the workflow too. It removes obsolete modern API application classes and the old FeatureGate before checking the source. Do not reuse a v1.x workflow with its old entry-count checks. The APK has exactly ONE legacy entry: `dev.chet.mypixelmodpack.PackDispatcher`; that dispatcher routes all nine components.
 
 The included development signing key is consistent across builds from this ZIP. It is deliberately a public development key, not suitable for Play Store distribution. Future upgrades built with this same key should not require uninstalling. Keep the key file with the project.
 
