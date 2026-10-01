@@ -13,6 +13,7 @@ import de.robv.android.xposed.XposedBridge;
 /** Access happens after Application.attach, with no world-readable file dependency. */
 public final class PackRuntime {
     private static Context context;
+    private static boolean visibilityRetained;
     private static String packageName, processName;
     private PackRuntime() {}
     static void attach(Context ctx, String pkg, String process) {
@@ -20,6 +21,15 @@ public final class PackRuntime {
     }
     public static SharedPreferences preferences(String store) {
         if (context == null) throw new IllegalStateException("Pack context not ready");
+        if (!visibilityRetained) {
+            try {
+                context.getContentResolver().takePersistableUriPermission(
+                    ProviderVisibility.VISIBILITY_URI, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                visibilityRetained = true;
+            } catch (SecurityException ignored) {
+                // Existing visible hosts need no grant. Missing grants never replace saved switches.
+            }
+        }
         final Bundle data;
         try { data = context.getContentResolver().call(PackSettingsProvider.URI, "snapshot", store, null); }
         catch (RuntimeException error) { throw new IllegalStateException("Settings provider unavailable for " + store, error); }
@@ -27,7 +37,7 @@ public final class PackRuntime {
         return new Snapshot(data);
     }
     static void report(String feature, String status) {
-        XposedBridge.log("MyPixelModPack 2.0.1: " + processName + " / " + feature + " / " + status);
+        XposedBridge.log("MyPixelModPack 2.0.2: " + processName + " / " + feature + " / " + status);
         try {
             Bundle extras = new Bundle();
             extras.putString("package", packageName); extras.putString("process", processName);

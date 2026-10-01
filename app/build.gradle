@@ -2,7 +2,7 @@ plugins { id 'com.android.application' }
 android {
  namespace 'dev.chet.mypixelmodpack'
  compileSdk 36
- defaultConfig { applicationId 'dev.chet.mypixelmodpack'; minSdk 35; targetSdk 28; versionCode 21; versionName '2.0.1' }
+ defaultConfig { applicationId 'dev.chet.mypixelmodpack'; minSdk 35; targetSdk 28; versionCode 22; versionName '2.0.2' }
  signingConfigs { pack { storeFile file('pack-development.jks'); storePassword 'android'; keyAlias 'pack'; keyPassword 'android' } }
  buildTypes { release { minifyEnabled false; signingConfig signingConfigs.pack } }
  lint { disable 'ExpiredTargetSdkVersion' }

@@ -31,6 +31,7 @@ public final class MainActivity extends Activity {
     private LinearLayout appList;
     private TextView serviceStatus;
     private EditText search;
+    private CheckBox enabled;
     private SharedPreferences prefs;
     private List<AppItem> apps = new ArrayList<>();
 
@@ -45,6 +46,9 @@ public final class MainActivity extends Activity {
     @Override protected void onStart() {
         super.onStart();
         prefs = getSharedPreferences("nav_match_v2", MODE_PRIVATE);
+        enabled.setOnCheckedChangeListener(null);
+        enabled.setChecked(prefs.getBoolean("enabled", true));
+        enabled.setOnCheckedChangeListener((b, checked) -> prefs.edit().putBoolean("enabled", checked).apply());
         serviceStatus.setText("Settings saved • restart affected apps to apply");
         renderApps();
     }
@@ -75,7 +79,7 @@ public final class MainActivity extends Activity {
         scope.setOnClickListener(v -> requestAllScopes());
         root.addView(scope);
 
-        CheckBox enabled = new CheckBox(this);
+        enabled = new CheckBox(this);
         enabled.setText("Module enabled");
         enabled.setChecked(true);
         enabled.setOnCheckedChangeListener((b, checked) -> {

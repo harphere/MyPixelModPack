@@ -1,11 +1,12 @@
-# Validation — 2.0.1
+# Validation — 2.0.2
 
-Completed September 30, 2026:
+Completed October 1, 2026:
 
-- Twelve tests passed, zero failures/errors: five settings-provider tests, two component failure-isolation tests, three process initialization tests, and two user-unlock retry tests.
-- Full release APK build and Android release lint passed (zero Error/Fatal lint issues; inherited warnings remain).
-- Built APK entry checks passed: one legacy dispatcher, no modern metadata, nine component sources, independent settings providers/stores.
-- APK signature verification passed. The included signing key is byte-for-byte identical to 2.0.0.
-- Battery Gradient, Gboard arrows, OPA and NavDotStyle component source files are unchanged from 2.0.0. The changes are to dispatcher startup boundaries, a retry on user unlock, the process initialization guard, diagnostics display, and regression tests.
+- Sixteen tests passed, zero failures/errors: five provider snapshot tests, two failure-isolation tests, three startup guard tests, two unlock retry tests, three visibility-grant tests and one Nav Bar Match settings UI test.
+- Full release build and release lint passed. Zero Error/Fatal lint issues; inherited warnings remain.
+- Grant tests cover read-only plus persistable mode on the dedicated non-data URI, unchanged feature switches, continued grants after one rejection, self exclusion and deduplication.
+- Settings UI test confirms saved OFF is displayed as OFF, toggling preserves the blacklist, and returning to the page reads the current saved state.
+- All original Java files compared against 2.0.1. Changes are limited to PackRuntime, dispatcher version labels, HomeActivity access/diagnostics UI and the Nav Bar Match settings checkbox. New helper/tests added separately. All nine feature entry classes and signing key are identical to baseline.
+- APK signature and single legacy entry checks passed. Packaging excludes build output, local SDK paths and temporary dependency setup.
 
-The tests exercise startup deduplication, retries after a no-hooks-installed settings failure, preventing duplicate hooks after an unexpected partial failure, and the unlock broadcast retry. They do not simulate Vector injection or confirm the device's Launcher3 hooks. The missed-attach/locked-user scenarios are plausible explanations for the absent component logs; device behavior remains unverified.
+Limitations: Robolectric tests record URI-grant calls; they do not exercise Android's real package visibility service, persistent permission lifecycle across device reboot, or Vector injection. The supplied eero log confirms provider lookup failure before hooks install. The workaround and AquaMail/Costco behavior require testing on the user's device. No guaranteed colour-matching result is inferred from compilation or unit tests.

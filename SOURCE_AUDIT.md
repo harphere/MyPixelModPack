@@ -1,19 +1,15 @@
-# Component source audit
+# Source audit — 2.0.2
 
-| Feature | Source used | Integration changes |
-|---|---|---|
-| Battery Gradient | BatteryGradient 1.0.10 | Provider authority retargeted; no pack gate inside component; standalone hooks retained. Includes independent Iconify row placement and Tasker receiver. |
-| Gboard cursor arrows | GboardCursorKeys 1.0.10 navrow | Standalone source restored without pack gate. Launcher navigation row and Gboard receiver protocol retained. |
-| Mobile type icons | MobileTypeFrame 1.4.0 | Provider authority retargeted; resource and binder hooks routed by dispatcher. |
-| VoLTE / VoWiFi | VoServiceFrame GH Actions 1.0.2 | Resource imports use combined R class. Style settings use independent `vo_icons_v2` snapshot instead of standalone package file access. |
-| OPA Home | PixelOpaHome 1.2.1 | Standalone launcher touch/animation code restored. Its initZygote method only logs and needs no forwarding. |
-| Navigation icons | NavDotStyle 1.1.1, legacy port from pack 1.1.1 | Keep direct XC_MethodHook port; `nav_icons_v2` settings snapshot. |
-| Nav Bar Status Match | NavBarStatusMatch 1.0.8, legacy port/fix from pack 1.1.1 | Keep direct XC_MethodHook port and lazy Handler; independent `nav_match_v2` settings snapshot; skip SystemUI/self. |
-| Network activity | PXNetworkActivityStandalone 1.0.2 alpha3 | Provider authority and preference file retargeted; standalone traffic measurement/view hooks restored. |
-| DT2W | PixelDoubleTapWake InfinityX A16 GitHub fixed | Install after Application.attach; suppress first doze tap only after reset scheduling succeeds; rearm and native double-tap behavior retained. |
+Baseline: delivered MyPixelModPack-source-refreshed-v2.0.1.zip.
 
-Provider authorities are all under the combined package. The preference stores used by navigation icons, navigation matching, Vo settings, network display and the master switches are independent. Appearance settings in the standalone packages are not automatically imported.
+All nine feature entry classes, their helper classes, settings providers, package ID, signing key and appearance stores are unchanged. Dispatcher logic is unchanged; only its version log labels change.
 
-No module constructor runs from the pack's LSPosed entry constructor. No feature preference is read during zygote specialization. All component instances belong to the target process and are initialized with its class loader.
+Changes:
+- ProviderVisibility runs in the pack app to grant a dedicated provider-visibility URI to installed third-party and launchable system packages in the same Android user/profile. It deduplicates packages, excludes the pack itself, isolates rejected grants and returns a report.
+- PackRuntime attempts to retain a granted read-only URI permission before querying saved preferences. A missing grant is tolerated for already-visible hosts; an unavailable settings snapshot still aborts initialization rather than enabling defaults.
+- The pack settings provider declares grantUriPermissions. Its existing snapshot store allowlist, read-only configuration API and diagnostic caller validation are retained.
+- HomeActivity automatically refreshes app access in a worker, exposes a manual refresh button and adds the result/internal Nav Bar Match settings to diagnostics.
+- Nav Bar Match settings UI now reflects its saved enable flag onStart and preserves the blacklist.
+- New regression tests cover URI/mode selection, unchanged feature settings, partial grant failures, package deduplication/self exclusion and persisted checkbox state.
 
-2.0.1 changes only dispatcher bootstrap boundaries and reporting UI. Component hook bodies and settings transport are unchanged from 2.0.0. The process startup claim persists after success or a potentially partial exception, and releases only after an explicit no-components-installed settings failure.
+The URI-grant mechanism follows Android's documented package visibility rules. The supplied eero log establishes provider lookup failure, but the device-specific source of that restriction has not been reproduced locally. The test build remains subject to real-device confirmation; AquaMail and Costco have no corresponding startup logs yet.

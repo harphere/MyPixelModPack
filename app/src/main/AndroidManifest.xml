@@ -13,6 +13,6 @@
 <provider android:name="dev.chet.batterygradient.SettingsProvider" android:authorities="dev.chet.mypixelmodpack.battery.settings" android:exported="true"/>
 <provider android:name="dev.chet.mobiletypeframe.ShapeProvider" android:authorities="dev.chet.mypixelmodpack.mobile.settings" android:exported="true"/>
 <provider android:name="com.chet.networkactivity.ConfigProvider" android:authorities="dev.chet.mypixelmodpack.network.settings" android:exported="true"/>
-<provider android:name="dev.chet.mypixelmodpack.PackSettingsProvider" android:authorities="dev.chet.mypixelmodpack.settings.v2" android:exported="true"/>
+<provider android:name="dev.chet.mypixelmodpack.PackSettingsProvider" android:authorities="dev.chet.mypixelmodpack.settings.v2" android:exported="true" android:grantUriPermissions="true"/>
 <meta-data android:name="xposedmodule" android:value="true"/><meta-data android:name="xposeddescription" android:value="Pixel navigation, status icons, battery, and Gboard tweaks"/><meta-data android:name="xposedminversion" android:value="82"/>
 </application></manifest>

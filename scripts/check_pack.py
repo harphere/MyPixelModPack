@@ -63,4 +63,11 @@ if len(sys.argv) > 1:
     with zipfile.ZipFile(sys.argv[1]) as apk:
         assert apk.read('assets/xposed_init').decode().splitlines() == entry
         assert 'META-INF/xposed/java_init.list' not in apk.namelist()
-print('Verified single legacy dispatcher, nine components, independent settings, XML and providers')
+pack_provider = next(p for p in manifest.iter('provider') if p.get(android + 'authorities') == 'dev.chet.mypixelmodpack.settings.v2')
+assert pack_provider.get(android + 'grantUriPermissions') == 'true'
+visibility = (java / 'dev/chet/mypixelmodpack/ProviderVisibility.java').read_text()
+assert 'FLAG_GRANT_WRITE_URI_PERMISSION' not in visibility
+assert 'FLAG_GRANT_READ_URI_PERMISSION' in visibility
+assert 'FLAG_GRANT_PERSISTABLE_URI_PERMISSION' in visibility
+assert 'takePersistableUriPermission' in (java / 'dev/chet/mypixelmodpack/PackRuntime.java').read_text()
+print('Verified single legacy dispatcher, nine components, read-only visibility grant, XML and independent providers')

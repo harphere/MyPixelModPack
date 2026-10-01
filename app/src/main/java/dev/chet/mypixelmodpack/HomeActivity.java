@@ -37,7 +37,7 @@ public final class HomeActivity extends Activity {
         list.setPadding(pad, pad, pad, pad);
         ScrollView scroll = new ScrollView(this); scroll.addView(list);
         TextView intro = new TextView(this);
-        intro.setText("My Pixel Mod Pack 2.0.1\n\nChoose features, disable their matching standalone modules in Vector / LSPosed, and reboot. Fresh installs start OFF. Upgrading from 2.0.0 preserves your switches and settings. Changes take effect after reboot.");
+        intro.setText("My Pixel Mod Pack 2.0.2\n\nChoose features, disable their matching standalone modules in Vector / LSPosed, and reboot. Fresh installs start OFF. Upgrading from 2.0.0 preserves your switches and settings. Changes take effect after reboot.");
         intro.setTextSize(17); list.addView(intro);
         for (String[] feature : FEATURES) {
             CheckBox toggle = new CheckBox(this);
@@ -53,10 +53,38 @@ public final class HomeActivity extends Activity {
                 list.addView(settings);
             }
         }
+        TextView accessStatus = new TextView(this);
+        accessStatus.setText("Refreshing app access…");
+        list.addView(accessStatus);
+        Button refreshAccess = new Button(this);
+        refreshAccess.setText("Refresh app access"); list.addView(refreshAccess);
+        Runnable refresh = () -> {
+            refreshAccess.setEnabled(false);
+            accessStatus.setText("Refreshing app access…");
+            new Thread(() -> {
+                String result;
+                try { result = ProviderVisibility.refresh(getApplicationContext()).summary(); }
+                catch (RuntimeException error) { result = "App access refresh failed: " + error; }
+                getSharedPreferences("access_diagnostics_v2", MODE_PRIVATE).edit()
+                    .putString("result", System.currentTimeMillis() + " | " + result).apply();
+                final String message = result;
+                runOnUiThread(() -> {
+                    if (isDestroyed()) return;
+                    accessStatus.setText(message + "\nForce stop and reopen affected apps to apply.");
+                    refreshAccess.setEnabled(true);
+                });
+            }, "PackAppAccess").start();
+        };
+        refreshAccess.setOnClickListener(v -> refresh.run());
+        refresh.run();
         Button diagnostics = new Button(this); diagnostics.setText("Show / copy pack startup diagnostics");
         diagnostics.setOnClickListener(v -> {
-            StringBuilder text = new StringBuilder("My Pixel Mod Pack 2.0.1\nSaved switches (reboot required):\n");
+            StringBuilder text = new StringBuilder("My Pixel Mod Pack 2.0.2\nSaved switches (reboot required):\n");
             for (String[] feature : FEATURES) text.append(feature[0]).append('=').append(prefs.getBoolean(feature[0], false)).append('\n');
+            SharedPreferences matchPrefs = getSharedPreferences("nav_match_v2", MODE_PRIVATE);
+            text.append("\nNav Bar Match settings:\nmodule_enabled=").append(matchPrefs.getBoolean("enabled", true));
+            text.append("\nblacklist=").append(matchPrefs.getStringSet("blacklist", java.util.Collections.emptySet()));
+            text.append("\n\nApp access refresh:\n").append(getSharedPreferences("access_diagnostics_v2", MODE_PRIVATE).getString("result", "Not run yet")).append('\n');
             text.append("\nLatest process reports (epoch milliseconds):\n");
             Map<String, ?> reports = new TreeMap<>(getSharedPreferences("diagnostics_v2", 0).getAll());
             if (reports.isEmpty()) text.append("No process reports. Confirm module enabled, scope and reboot.\n");
@@ -65,7 +93,7 @@ public final class HomeActivity extends Activity {
             output.setText(text.toString()); output.setTextIsSelectable(true);
             output.setPadding(pad, pad, pad, pad);
             ScrollView reportScroll = new ScrollView(this); reportScroll.addView(output);
-            new AlertDialog.Builder(this).setTitle("Pack 2.0.1 startup diagnostics")
+            new AlertDialog.Builder(this).setTitle("Pack 2.0.2 startup diagnostics")
                 .setView(reportScroll).setPositiveButton("Copy all", (dialog, which) -> {
                     ((ClipboardManager) getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("Pack diagnostics", text.toString()));
                     Toast.makeText(this, "Full report copied", Toast.LENGTH_LONG).show();
