@@ -15,6 +15,7 @@ public final class SettingsProvider extends ContentProvider {
     public static final String FILLED = "filled";
     public static final String DASHED = "dashed";
     public static final String CIRCLE = "circle";
+    public static final String PORTRAIT = "portrait";
     public static final String DEFAULT = "default";
 
     @Override public boolean onCreate() { return true; }
@@ -54,7 +55,7 @@ public final class SettingsProvider extends ContentProvider {
     }
 
     private static String sanitize(String value) {
-        return DASHED.equals(value) || CIRCLE.equals(value) ? value : FILLED;
+        return DASHED.equals(value) || CIRCLE.equals(value) || PORTRAIT.equals(value) ? value : FILLED;
     }
 
     @Override public Bundle call(String method, String arg, Bundle extras) {
@@ -68,7 +69,7 @@ public final class SettingsProvider extends ContentProvider {
         }
         if ("override".equals(method) && Binder.getCallingUid() == Process.myUid()
                 && (FILLED.equals(arg) || DASHED.equals(arg) || CIRCLE.equals(arg)
-                || DEFAULT.equals(arg))) {
+                || PORTRAIT.equals(arg) || DEFAULT.equals(arg))) {
             if (DEFAULT.equals(arg)) {
                 context.getSharedPreferences("battery", 0).edit().remove("style_override").apply();
             } else {

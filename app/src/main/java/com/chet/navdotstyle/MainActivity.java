@@ -33,7 +33,7 @@ public final class MainActivity extends Activity {
     @Override protected void onStart() {
         super.onStart();
         prefs = getSharedPreferences("nav_icons_v2", MODE_PRIVATE);
-        status.setText("Settings saved • restart Pixel Launcher or reboot to apply");
+        status.setText("Settings saved • restart Launcher3 or reboot to apply");
         select(prefs.getString("style", "mixed"));
     }
 
@@ -88,7 +88,7 @@ public final class MainActivity extends Activity {
         root.addView(status);
 
         TextView note = new TextView(this);
-        note.setText("Designed for Android 16 three-button navigation. If the icons do not change immediately after first setup, restart Pixel Launcher or reboot once.");
+        note.setText("Designed for Android 16 three-button navigation. If the icons do not change immediately after first setup, restart Launcher3 or reboot once.");
         note.setTextColor(0xFF777781);
         note.setPadding(0, dp(12), 0, 0);
         root.addView(note);

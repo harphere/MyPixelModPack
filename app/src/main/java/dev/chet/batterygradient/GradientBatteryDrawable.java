@@ -6,6 +6,7 @@ import android.graphics.ColorFilter;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.RadialGradient;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -75,24 +76,40 @@ public final class GradientBatteryDrawable extends Drawable {
             paint.setShader(new LinearGradient(0, 2, 0, 22,
                     mix(color, Color.WHITE, .22f), color, Shader.TileMode.CLAMP));
             if (level > 0) canvas.drawArc(circle, -90, level * 3.6f, false, paint);
-        } else {
+        } else if (SettingsProvider.PORTRAIT.equals(style)) {
+            RectF body = new RectF(5.5f, 3.5f, 18.5f, 22f);
             paint.setStyle(Paint.Style.FILL);
-            paint.setColor(Color.argb(75, Color.red(color), Color.green(color), Color.blue(color)));
-            canvas.drawCircle(12, 12, 9.5f, paint);
+            paint.setColor(Color.argb(70, 120, 120, 120));
+            canvas.drawRoundRect(body, 2f, 2f, paint);
+            paint.setColor(Color.LTGRAY);
+            canvas.drawRoundRect(new RectF(9f, 1f, 15f, 3.5f), .7f, .7f, paint);
             int clip = canvas.save();
             Path mask = new Path();
-            mask.addCircle(12, 12, 9.5f, Path.Direction.CW);
+            mask.addRoundRect(body, 2f, 2f, Path.Direction.CW);
             canvas.clipPath(mask);
-            paint.setColor(color);
-            paint.setShader(new LinearGradient(0, 2, 0, 22,
-                    mix(color, Color.WHITE, .25f), color, Shader.TileMode.CLAMP));
-            float top = 21.5f - level * .19f;
-            canvas.drawRect(2.5f, top, 21.5f, 21.5f, paint);
+            paint.setShader(new LinearGradient(0, body.top, 0, body.bottom,
+                    gradientColors(false), gradientStops(), Shader.TileMode.CLAMP));
+            if (level > 0) canvas.drawRect(body.left, body.bottom - body.height() * level / 100f,
+                    body.right, body.bottom, paint);
             canvas.restoreToCount(clip);
             paint.setShader(null);
             paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(1.1f);
-            paint.setColor(color);
+            paint.setStrokeWidth(1f);
+            paint.setColor(Color.LTGRAY);
+            canvas.drawRoundRect(body, 2f, 2f, paint);
+        } else {
+            // Keep a fixed full-size track; remove the outer coloured rings first.
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.argb(70, 120, 120, 120));
+            canvas.drawCircle(12, 12, 9.5f, paint);
+            paint.setColor(Color.WHITE);
+            paint.setShader(new RadialGradient(12, 12, 9.5f,
+                    gradientColors(true), gradientStops(), Shader.TileMode.CLAMP));
+            if (level > 0) canvas.drawCircle(12, 12, 9.5f * level / 100f, paint);
+            paint.setShader(null);
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(.8f);
+            paint.setColor(Color.argb(140, 160, 160, 160));
             canvas.drawCircle(12, 12, 9.5f, paint);
         }
         paint.setShader(null);
@@ -112,6 +129,14 @@ public final class GradientBatteryDrawable extends Drawable {
         }
         canvas.restoreToCount(saved);
     }
+
+    private static int[] gradientColors(boolean radial) {
+        int red = Color.rgb(229, 59, 59), amber = Color.rgb(246, 176, 35);
+        int yellow = Color.rgb(245, 220, 48), green = Color.rgb(47, 192, 96);
+        return radial ? new int[]{red, amber, yellow, green}
+                : new int[]{green, yellow, amber, red};
+    }
+    private static float[] gradientStops() { return new float[]{0f, .35f, .65f, 1f}; }
 
     @Override public void setAlpha(int alpha) { /* Ignore SystemUI tint/alpha updates. */ }
     @Override public void setColorFilter(ColorFilter filter) { /* Keep the level colour. */ }

@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
-<application android:forceQueryable="true" android:label="My Pixel Mod Pack" android:icon="@drawable/ic_wand" android:theme="@style/AppTheme" android:allowBackup="false">
+<application android:name="dev.chet.mypixelmodpack.UiApplication" android:forceQueryable="true" android:label="My Pixel Mod Pack" android:icon="@drawable/ic_wand" android:theme="@style/AppTheme" android:allowBackup="false">
 <activity android:name="dev.chet.mypixelmodpack.HomeActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity>
 <activity android:name="dev.chet.batterygradient.SettingsActivity" android:exported="false"/>
 <activity android:name="dev.chet.mobiletypeframe.SettingsActivity" android:exported="false"/>

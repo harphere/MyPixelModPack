@@ -1,12 +1,12 @@
-# Validation — 2.0.2
+# Validation — 2.1.2
 
-Completed October 1, 2026:
+October 3, 2026 UTC (October 2 in America/Regina).
 
-- Sixteen tests passed, zero failures/errors: five provider snapshot tests, two failure-isolation tests, three startup guard tests, two unlock retry tests, three visibility-grant tests and one Nav Bar Match settings UI test.
-- Full release build and release lint passed. Zero Error/Fatal lint issues; inherited warnings remain.
-- Grant tests cover read-only plus persistable mode on the dedicated non-data URI, unchanged feature switches, continued grants after one rejection, self exclusion and deduplication.
-- Settings UI test confirms saved OFF is displayed as OFF, toggling preserves the blacklist, and returning to the page reads the current saved state.
-- All original Java files compared against 2.0.1. Changes are limited to PackRuntime, dispatcher version labels, HomeActivity access/diagnostics UI and the Nav Bar Match settings checkbox. New helper/tests added separately. All nine feature entry classes and signing key are identical to baseline.
-- APK signature and single legacy entry checks passed. Packaging excludes build output, local SDK paths and temporary dependency setup.
+- All 29 release unit tests passed with no failures/errors. The four added battery tests verify actual rendered pixels for radial shrink, full opacity, removal of top portrait fill, retention of lower warm colours, and persisted portrait selection/override/reset.
+- Native Robolectric rendering produced a two-row preview at 100%, 75%, 50%, 25% and 10%; visually inspected. This is the actual drawable rendered off-device, not an illustration or physical-device screenshot. See docs/battery-preview.png.
+- Clean release assembly, release lint and APK signature verification passed. Lint has zero Error/Fatal findings; pre-existing warnings remain.
+- Source and APK checks confirm a single legacy dispatcher and the preserved 2.0.2 provider-access fix.
+- Byte comparison against 2.1.1 confirms only four battery drawing/selection files and two infrastructure version labels changed in production Java. BatteryModule, placement/row helpers, other components and signing key are unchanged.
+- Local environment uses Java 17, Gradle 8.11.1, SDK 36, build tools 35.0.0; temporary proxy/preview configuration is external and excluded from the ZIP. GH Actions runs the regular release checks.
 
-Limitations: Robolectric tests record URI-grant calls; they do not exercise Android's real package visibility service, persistent permission lifecycle across device reboot, or Vector injection. The supplied eero log confirms provider lookup failure before hooks install. The workaround and AquaMail/Costco behavior require testing on the user's device. No guaranteed colour-matching result is inferred from compilation or unit tests.
+Physical-device status bar appearance and Iconify placement with these new drawings have not been tested here. The existing hook and placement code is preserved. No change to optional Settings shortcut compatibility in this release.
