@@ -31,7 +31,7 @@ public final class PackDispatcher implements IXposedHookLoadPackage, IXposedHook
 
     @Override public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam load) {
         if (PACK.equals(load.packageName) || "android".equals(load.packageName)) return;
-        XposedBridge.log("MyPixelModPack 2.1.2: dispatcher reached " + load.packageName + " process=" + load.processName);
+        XposedBridge.log("MyPixelModPack 2.1.3: dispatcher reached " + load.packageName + " process=" + load.processName);
         // Vector may deliver package loading before OR after Application.attach.
         // Install both boundaries first, then check for an already attached app.
         try {
@@ -60,7 +60,7 @@ public final class PackDispatcher implements IXposedHookLoadPackage, IXposedHook
         String key = load.packageName + ":" + load.processName;
         try {
             startup.run(key, () -> {
-                XposedBridge.log("MyPixelModPack 2.1.2: starting " + key + " via " + boundary);
+                XposedBridge.log("MyPixelModPack 2.1.3: starting " + key + " via " + boundary);
                 boolean ready = start(ctx, load);
                 if (!ready && unlockWaiters.add(key)) {
                     try {

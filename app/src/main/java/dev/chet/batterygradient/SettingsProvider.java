@@ -27,6 +27,17 @@ public final class SettingsProvider extends ContentProvider {
         } catch (Throwable ignored) { return FILLED; }
     }
 
+    public static Bundle getDisplayOptions(Context context) {
+        try {
+            Bundle result = context.getContentResolver().call(URI, "get", null, null);
+            if (result != null) return result;
+        } catch (Throwable ignored) { }
+        Bundle fallback = new Bundle();
+        fallback.putString("style", FILLED);
+        fallback.putBoolean("show_percentage", false);
+        return fallback;
+    }
+
     public static String getSelectedStyle(Context context) {
         try {
             Bundle b = context.getContentResolver().call(URI, "selected", null, null);
@@ -67,6 +78,12 @@ public final class SettingsProvider extends ContentProvider {
                     .putString("style", sanitize(arg)).apply();
             context.getContentResolver().notifyChange(URI, null);
         }
+        if ("set_percentage".equals(method) && Binder.getCallingUid() == Process.myUid()
+                && ("true".equals(arg) || "false".equals(arg))) {
+            context.getSharedPreferences("battery", 0).edit()
+                    .putBoolean("show_percentage", Boolean.parseBoolean(arg)).apply();
+            context.getContentResolver().notifyChange(URI, null);
+        }
         if ("override".equals(method) && Binder.getCallingUid() == Process.myUid()
                 && (FILLED.equals(arg) || DASHED.equals(arg) || CIRCLE.equals(arg)
                 || PORTRAIT.equals(arg) || DEFAULT.equals(arg))) {
@@ -84,6 +101,8 @@ public final class SettingsProvider extends ContentProvider {
             context.getSharedPreferences("battery", 0).edit()
                     .putString("status", when + " — " + safe).apply();
         }
+        out.putBoolean("show_percentage", context.getSharedPreferences("battery", 0)
+                .getBoolean("show_percentage", false));
         out.putString("status", context.getSharedPreferences("battery", 0)
                 .getString("status", "No System UI event received yet"));
         String selected = sanitize(context.getSharedPreferences("battery", 0)

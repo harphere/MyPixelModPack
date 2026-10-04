@@ -1,12 +1,12 @@
-# Validation — 2.1.2
+# Validation — 2.1.3
 
-October 3, 2026 UTC (October 2 in America/Regina).
+October 4, 2026 UTC (October 3 in America/Regina).
 
-- All 29 release unit tests passed with no failures/errors. The four added battery tests verify actual rendered pixels for radial shrink, full opacity, removal of top portrait fill, retention of lower warm colours, and persisted portrait selection/override/reset.
-- Native Robolectric rendering produced a two-row preview at 100%, 75%, 50%, 25% and 10%; visually inspected. This is the actual drawable rendered off-device, not an illustration or physical-device screenshot. See docs/battery-preview.png.
-- Clean release assembly, release lint and APK signature verification passed. Lint has zero Error/Fatal findings; pre-existing warnings remain.
-- Source and APK checks confirm a single legacy dispatcher and the preserved 2.0.2 provider-access fix.
-- Byte comparison against 2.1.1 confirms only four battery drawing/selection files and two infrastructure version labels changed in production Java. BatteryModule, placement/row helpers, other components and signing key are unchanged.
-- Local environment uses Java 17, Gradle 8.11.1, SDK 36, build tools 35.0.0; temporary proxy/preview configuration is external and excluded from the ZIP. GH Actions runs the regular release checks.
+- All 32 release unit tests passed with zero failures/errors. Added rendering tests verify percentage visibility for all four styles, exact preservation of the entire battery drawing when the charging bolt appears, the separate bolt lane, and persistence/default/override independence of the percentage preference.
+- The existing radial shrink, portrait gradient, provider isolation, startup, saved-setting and UI regression tests passed.
+- Release assembly and lint passed with no Error/Fatal findings; existing lint warnings remain. APK signature and single legacy dispatcher checks passed.
+- Native Robolectric preview rendering shows circle and portrait at five levels with percentage hidden, percentage enabled, and charging bolts. Visually inspected; see docs/battery-preview.png. This is the actual drawable rendered off-device, not a device screenshot.
+- Signing key and production Java outside Battery Gradient are unchanged from 2.1.2 except version labels. The working 2.0.2 provider-access fix is preserved.
+- Build used Java 17, Gradle 8.11.1, SDK 36 and build tools 35.0.0. Temporary local proxy/preview configuration is excluded; GH Actions performs the normal checks.
 
-Physical-device status bar appearance and Iconify placement with these new drawings have not been tested here. The existing hook and placement code is preserved. No change to optional Settings shortcut compatibility in this release.
+Physical-device appearance and the widened 32 × 24 dp slot with Iconify have not been tested here. Row discovery and movement logic are retained, with an 8 dp lane reserved for the bolt. Percentage switches use the existing live provider observer. Optional Settings shortcut compatibility is unchanged.

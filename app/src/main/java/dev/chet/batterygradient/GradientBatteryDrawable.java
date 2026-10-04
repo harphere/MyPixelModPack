@@ -19,6 +19,7 @@ public final class GradientBatteryDrawable extends Drawable {
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private int level = 75;
     private boolean charging;
+    private boolean showPercentage;
     private String style = SettingsProvider.FILLED;
 
     public void setLevelPercent(int value) {
@@ -26,6 +27,7 @@ public final class GradientBatteryDrawable extends Drawable {
         invalidateSelf();
     }
     public void setCharging(boolean value) { charging = value; invalidateSelf(); }
+    public void setShowPercentage(boolean value) { showPercentage = value; invalidateSelf(); }
     public void setStyle(String value) { style = value; invalidateSelf(); }
 
     public static int levelColor(int level) {
@@ -47,8 +49,8 @@ public final class GradientBatteryDrawable extends Drawable {
         if (bounds.isEmpty()) return;
         int saved = canvas.save();
         canvas.translate(bounds.left, bounds.top);
-        float scale = Math.min(bounds.width(), bounds.height()) / 24f;
-        canvas.translate((bounds.width() - 24f * scale) / 2f,
+        float scale = Math.min(bounds.width() / 32f, bounds.height() / 24f);
+        canvas.translate((bounds.width() - 32f * scale) / 2f,
                 (bounds.height() - 24f * scale) / 2f);
         canvas.scale(scale, scale);
         int color = levelColor(level);
@@ -114,18 +116,31 @@ public final class GradientBatteryDrawable extends Drawable {
         }
         paint.setShader(null);
         paint.setStyle(Paint.Style.FILL);
-        paint.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
-        paint.setTextAlign(Paint.Align.CENTER);
-        paint.setTextSize(level == 100 ? 8.3f : 9.6f);
-        // A dark backing preserves legibility over both pale and saturated fills.
-        String label = String.valueOf(level);
-        paint.setColor(Color.argb(205, 18, 27, 25));
-        canvas.drawText(label, 12.25f, 15.4f, paint);
-        paint.setColor(Color.WHITE);
-        canvas.drawText(label, 11.85f, 15f, paint);
-        if (charging) {
+        if (showPercentage) {
+            paint.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
+            paint.setTextAlign(Paint.Align.CENTER);
+            paint.setTextSize(level == 100 ? 8.3f : 9.6f);
+            String label = String.valueOf(level);
+            paint.setColor(Color.argb(205, 18, 27, 25));
+            canvas.drawText(label, 12.25f, 15.4f, paint);
             paint.setColor(Color.WHITE);
-            canvas.drawCircle(19.6f, 4.4f, 1.4f, paint);
+            canvas.drawText(label, 11.85f, 15f, paint);
+        }
+        if (charging) {
+            // Dedicated right-hand lane: never cover the battery colour or label.
+            Path bolt = new Path();
+            bolt.moveTo(28.5f, 4f); bolt.lineTo(24.5f, 13f);
+            bolt.lineTo(28f, 13f); bolt.lineTo(26f, 20f);
+            bolt.lineTo(31.5f, 10f); bolt.lineTo(28f, 10f);
+            bolt.lineTo(30f, 4f); bolt.close();
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(.8f);
+            paint.setStrokeJoin(Paint.Join.ROUND);
+            paint.setColor(Color.argb(220, 18, 27, 25));
+            canvas.drawPath(bolt, paint);
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.WHITE);
+            canvas.drawPath(bolt, paint);
         }
         canvas.restoreToCount(saved);
     }
@@ -142,6 +157,6 @@ public final class GradientBatteryDrawable extends Drawable {
     @Override public void setColorFilter(ColorFilter filter) { /* Keep the level colour. */ }
     @Override public void setTint(int tint) { /* Keep the level colour. */ }
     @Override public int getOpacity() { return PixelFormat.TRANSLUCENT; }
-    @Override public int getIntrinsicWidth() { return 24; }
+    @Override public int getIntrinsicWidth() { return 32; }
     @Override public int getIntrinsicHeight() { return 24; }
 }

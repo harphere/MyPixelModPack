@@ -16,6 +16,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Switch;
 
 public final class SettingsActivity extends Activity {
     private final GradientBatteryDrawable preview = new GradientBatteryDrawable();
@@ -47,7 +48,7 @@ public final class SettingsActivity extends Activity {
 
         ImageView icon = new ImageView(this);
         icon.setImageDrawable(preview);
-        LinearLayout.LayoutParams iconLayout = new LinearLayout.LayoutParams(dp(108), dp(108));
+        LinearLayout.LayoutParams iconLayout = new LinearLayout.LayoutParams(dp(144), dp(108));
         iconLayout.gravity = Gravity.CENTER_HORIZONTAL;
         root.addView(icon, iconLayout);
 
@@ -56,6 +57,12 @@ public final class SettingsActivity extends Activity {
                 battery.getIntExtra(BatteryManager.EXTRA_LEVEL, 75) /
                 Math.max(1, battery.getIntExtra(BatteryManager.EXTRA_SCALE, 100)));
         preview.setLevelPercent(level);
+        int status = battery == null ? 0 : battery.getIntExtra(BatteryManager.EXTRA_STATUS, 0);
+        preview.setCharging(status == BatteryManager.BATTERY_STATUS_CHARGING
+                || (status == BatteryManager.BATTERY_STATUS_FULL && battery != null
+                && battery.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) != 0));
+        preview.setShowPercentage(SettingsProvider.getDisplayOptions(this)
+                .getBoolean("show_percentage", false));
 
         TextView reading = text("Preview: " + level + "%", 15);
         reading.setGravity(Gravity.CENTER);
@@ -72,6 +79,17 @@ public final class SettingsActivity extends Activity {
             @Override public void onStartTrackingTouch(SeekBar bar) { }
             @Override public void onStopTrackingTouch(SeekBar bar) { }
         });
+
+        Switch percentage = new Switch(this);
+        percentage.setText("Show battery percentage");
+        percentage.setChecked(SettingsProvider.getDisplayOptions(this)
+                .getBoolean("show_percentage", false));
+        percentage.setOnCheckedChangeListener((button, checked) -> {
+            getContentResolver().call(SettingsProvider.URI, "set_percentage",
+                    String.valueOf(checked), null);
+            preview.setShowPercentage(checked);
+        });
+        root.addView(percentage);
 
         TextView selector = text("Status bar style", 18);
         selector.setPadding(0, dp(20), 0, dp(8));

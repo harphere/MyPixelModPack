@@ -224,11 +224,12 @@ public final class BatteryModule implements IXposedHookLoadPackage {
                 int raw = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
                 drawable.setLevelPercent(Math.round(raw * 100f / scale));
                 int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, 0);
-                drawable.setCharging(status == BatteryManager.BATTERY_STATUS_CHARGING
-                        || status == BatteryManager.BATTERY_STATUS_FULL);
+                boolean charging = status == BatteryManager.BATTERY_STATUS_CHARGING
+                        || (status == BatteryManager.BATTERY_STATUS_FULL
+                        && intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) != 0);
+                drawable.setCharging(charging);
                 icon.setContentDescription("Battery " + Math.round(raw * 100f / scale)
-                        + " percent" + (status == BatteryManager.BATTERY_STATUS_CHARGING
-                        ? ", charging" : ""));
+                        + " percent" + (charging ? ", charging" : ""));
                 hideNative();
             }
         };
@@ -254,14 +255,15 @@ public final class BatteryModule implements IXposedHookLoadPackage {
         void attach() {
             Context context = group.getContext();
             int px = Math.round(24 * context.getResources().getDisplayMetrics().density);
+            int width = Math.round(32 * context.getResources().getDisplayMetrics().density);
             if (!insideStockBattery) {
                 placeBesideBattery(group);
             } else if (group instanceof LinearLayout) {
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(px, px);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(width, px);
                 lp.gravity = android.view.Gravity.CENTER_VERTICAL;
                 group.addView(icon, 0, lp);
             } else {
-                group.addView(icon, 0, new ViewGroup.LayoutParams(px, px));
+                group.addView(icon, 0, new ViewGroup.LayoutParams(width, px));
             }
             hideNative();
             readStyle();
@@ -291,18 +293,23 @@ public final class BatteryModule implements IXposedHookLoadPackage {
             if (icon.getParent() instanceof ViewGroup)
                 ((ViewGroup) icon.getParent()).removeView(icon);
             int px = Math.round(24 * target.getResources().getDisplayMetrics().density);
+            int width = Math.round(32 * target.getResources().getDisplayMetrics().density);
             int index = target.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL
                     ? 0 : target.getChildCount();
             if (target instanceof LinearLayout) {
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(px, px);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(width, px);
                 lp.gravity = android.view.Gravity.CENTER_VERTICAL;
                 target.addView(icon, index, lp);
             } else {
-                target.addView(icon, index, new ViewGroup.LayoutParams(px, px));
+                target.addView(icon, index, new ViewGroup.LayoutParams(width, px));
             }
         }
 
-        void readStyle() { drawable.setStyle(SettingsProvider.getStyle(group.getContext())); }
+        void readStyle() {
+            android.os.Bundle options = SettingsProvider.getDisplayOptions(group.getContext());
+            drawable.setStyle(options.getString("style", SettingsProvider.FILLED));
+            drawable.setShowPercentage(options.getBoolean("show_percentage", false));
+        }
 
         void hideNative() {
             if (!insideStockBattery) {
