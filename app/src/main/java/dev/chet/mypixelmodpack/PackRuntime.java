@@ -37,7 +37,7 @@ public final class PackRuntime {
         return new Snapshot(data);
     }
     static void report(String feature, String status) {
-        XposedBridge.log("MyPixelModPack 2.1.3: " + processName + " / " + feature + " / " + status);
+        XposedBridge.log("MyPixelModPack 2.1.4: " + processName + " / " + feature + " / " + status);
         try {
             Bundle extras = new Bundle();
             extras.putString("package", packageName); extras.putString("process", processName);

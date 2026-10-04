@@ -1,6 +1,14 @@
-# My Pixel Mod Pack 2.1.3 — battery styles
+# My Pixel Mod Pack 2.1.4 — automatic Gboard arrow recovery
 
-This release builds on 2.1.1, retaining its category UI, optional Settings shortcut and working 2.0.2 provider-access fix.
+## New in this release
+
+Launcher3 keeps its navigation attach listener when the view detaches, reconnects its visibility receiver on reattachment, and restores missing arrow children. Each attach/recovery performs four package-targeted queries over three seconds, then stops. Gboard registers its query receiver at service creation and sends fresh visibility reports when its window/input view starts, with two short follow-ups. Hiding or destroying the keyboard cancels pending reports.
+
+This addresses a code path that previously removed the receiver and its reattach listener together. It is intended to avoid routine switch toggling and force-stopping Gboard after navigation view/process changes. No force-stop, root shell command, Tasker requirement or always-running service is added. Saved ON/OFF feature switches are respected at process startup.
+
+Install the APK over the current pack and **reboot once** so Launcher3 and Gboard both load the new hooks. Keep Gboard and Launcher3 scoped; keep the standalone arrows module disabled. Opening a text field should then initiate the normal visibility handshake automatically. If recovery still fails, collect GboardCursorKeys logs, particularly receiver connected, arrows attached and IME visible reports.
+
+Hardware verification is still needed: automated tests cover the recovery lifecycle, but cannot reproduce every Gboard/ROM hook implementation.
 
 ## Battery changes
 
@@ -14,7 +22,7 @@ Under Status bar → Battery Gradient, use **Show battery percentage** to turn t
 
 ## Build and install
 
-Upload all extracted files, including `.github/workflows/build.yml`, to the repository. Run the Build Refreshed My Pixel Mod Pack workflow and download the MyPixelModPack-ui-v2.1.3 artifact. Install the APK over the current pack without uninstalling; the existing key, application ID, scopes and preferences are retained. Open the pack once and restart System UI or reboot after the update. Select Battery Gradient under Status bar, choose a style and use its preview slider.
+Upload all extracted files, including `.github/workflows/build.yml`, to the repository. Run the Build Refreshed My Pixel Mod Pack workflow and download the MyPixelModPack-ui-v2.1.4 artifact. Install the APK over the current pack without uninstalling; the existing key, application ID, scopes and preferences are retained. Open the pack once and restart System UI or reboot after the update. Select Battery Gradient under Status bar, choose a style and use its preview slider.
 
 Keep equivalent standalone modules disabled while using their pack features.
 
