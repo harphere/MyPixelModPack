@@ -29,6 +29,8 @@ components = {
     'match': 'com.chet.navbarmatch.NavBarModule',
     'network': 'com.chet.networkactivity.NetworkActivityModule',
     'wake': 'com.pixeldt2w.module.DoubleTapWakeHook',
+    'speaker': 'dev.chet.speakercontrol.SpeakerHook',
+    'pie': 'dev.chet.chromepiestatusmatch.ChromePie',
 }
 dispatcher = (java / 'dev/chet/mypixelmodpack/PackDispatcher.java').read_text()
 home = (java / 'dev/chet/mypixelmodpack/HomeActivity.java').read_text()
@@ -68,7 +70,7 @@ assert 'install("settings_entry", switches' in dispatcher
 assert '"com.android.settings".equals(pkg)' in dispatcher
 assert '"settings_entry"' in home
 assert 'my_pixel_mod_pack_shortcut' in (java / 'dev/chet/mypixelmodpack/SettingsShortcutModule.java').read_text()
-print('Verified single legacy dispatcher, nine components, optional Settings shortcut, UI, XML and independent providers')
+print('Verified single legacy dispatcher, eleven components, optional Settings shortcut, UI, XML and independent providers')
 
 pack_provider = next(p for p in manifest.iter('provider') if p.get(android + 'authorities') == 'dev.chet.mypixelmodpack.settings.v2')
 assert pack_provider.get(android + 'grantUriPermissions') == 'true'
