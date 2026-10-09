@@ -9,6 +9,14 @@
 <activity android:name="com.chet.navbarmatch.MainActivity" android:exported="false"/>
 <activity android:name="dev.chet.gboardcursorkeys.MainActivity" android:exported="false"/>
 <activity android:name="com.chet.networkactivity.SettingsActivity" android:exported="false"/>
+<activity
+    android:name="dev.chet.speakercontrol.MainActivity"
+    android:exported="false" />
+
+<activity
+    android:name="dev.chet.chromepiestatusmatch.settings.PieSettings"
+    android:exported="false"
+    android:theme="@style/CpAppTheme" />
 <receiver android:name="dev.chet.batterygradient.StyleIntentReceiver" android:exported="true"><intent-filter><action android:name="dev.chet.batterygradient.SET_STYLE"/></intent-filter></receiver>
 <provider android:name="dev.chet.batterygradient.SettingsProvider" android:authorities="dev.chet.mypixelmodpack.battery.settings" android:exported="true"/>
 <provider android:name="dev.chet.mobiletypeframe.ShapeProvider" android:authorities="dev.chet.mypixelmodpack.mobile.settings" android:exported="true"/>
