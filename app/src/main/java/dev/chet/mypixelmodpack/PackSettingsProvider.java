@@ -13,7 +13,7 @@ import java.util.Set;
 /** Read-only appearance settings; diagnostics are separate from hook configuration. */
 public final class PackSettingsProvider extends ContentProvider {
     public static final Uri URI = Uri.parse("content://dev.chet.mypixelmodpack.settings.v2");
-    private static final Set<String> STORES = Set.of("features_v2", "nav_icons_v2", "nav_match_v2", "vo_icons_v2");
+    private static final Set<String> STORES = Set.of("features_v2", "nav_icons_v2", "nav_match_v2", "vo_icons_v2", "chromepie_v1");
     @Override public boolean onCreate() { return true; }
     @Override public Bundle call(String method, String arg, Bundle extras) {
         if ("snapshot".equals(method)) {

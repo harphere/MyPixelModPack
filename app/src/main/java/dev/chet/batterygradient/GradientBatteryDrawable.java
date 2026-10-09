@@ -18,15 +18,43 @@ import android.graphics.drawable.Drawable;
 public final class GradientBatteryDrawable extends Drawable {
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private int level = 75;
-    private boolean charging;
+    private boolean charging, activelyCharging;
     private boolean showPercentage;
+    private boolean animationEnabled = true, animationRunning;
+    private long animationStart;
+    private float phase;
+    private final Runnable frame = new Runnable() {
+        @Override public void run() {
+            if (!shouldAnimate()) { stopAnimation(); return; }
+            phase = ((android.os.SystemClock.uptimeMillis() - animationStart) % 1800L) / 1800f;
+            invalidateSelf();
+            scheduleSelf(this, android.os.SystemClock.uptimeMillis() + 32);
+        }
+    };
+    public void setAnimationEnabled(boolean enabled) { animationEnabled = enabled; updateAnimation(); invalidateSelf(); }
+    boolean shouldAnimate() { return animationEnabled && activelyCharging && level > 0 && level < 100 && isVisible() && getCallback() != null; }
+    private void updateAnimation() {
+        if (shouldAnimate() && !animationRunning) {
+            animationRunning = true; animationStart = android.os.SystemClock.uptimeMillis();
+            phase = 0; scheduleSelf(frame, animationStart + 32);
+        } else if (!shouldAnimate()) stopAnimation();
+    }
+    public void stopAnimation() { unscheduleSelf(frame); animationRunning = false; phase = 0; }
+    @Override public boolean setVisible(boolean visible, boolean restart) {
+        boolean changed = super.setVisible(visible, restart);
+        if (restart) stopAnimation();
+        updateAnimation(); return changed;
+    }
+    void setAnimationPhaseForTest(float value) { phase = value; }
     private String style = SettingsProvider.FILLED;
 
     public void setLevelPercent(int value) {
         level = Math.max(0, Math.min(100, value));
+        updateAnimation();
         invalidateSelf();
     }
-    public void setCharging(boolean value) { charging = value; invalidateSelf(); }
+    public void setCharging(boolean value) { charging = value; activelyCharging = value; updateAnimation(); invalidateSelf(); }
+    public void setActivelyCharging(boolean value) { activelyCharging = value; updateAnimation(); invalidateSelf(); }
     public void setShowPercentage(boolean value) { showPercentage = value; invalidateSelf(); }
     public void setStyle(String value) { style = value; invalidateSelf(); }
 
@@ -53,6 +81,7 @@ public final class GradientBatteryDrawable extends Drawable {
         canvas.translate((bounds.width() - 32f * scale) / 2f,
                 (bounds.height() - 24f * scale) / 2f);
         canvas.scale(scale, scale);
+        int bodyLayer = canvas.saveLayer(0, 0, 24, 24, null);
         int color = levelColor(level);
         RectF circle = new RectF(2.5f, 2.5f, 21.5f, 21.5f);
         paint.reset();
@@ -114,7 +143,10 @@ public final class GradientBatteryDrawable extends Drawable {
             paint.setColor(Color.argb(140, 160, 160, 160));
             canvas.drawCircle(12, 12, 9.5f, paint);
         }
+        drawChargingPulse(canvas, circle);
+        canvas.restoreToCount(bodyLayer);
         paint.setShader(null);
+        paint.setAlpha(255);
         paint.setStyle(Paint.Style.FILL);
         if (showPercentage) {
             paint.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
@@ -143,6 +175,41 @@ public final class GradientBatteryDrawable extends Drawable {
             canvas.drawPath(bolt, paint);
         }
         canvas.restoreToCount(saved);
+    }
+
+    private void drawChargingPulse(Canvas canvas, RectF circle) {
+        if (!animationEnabled || !activelyCharging || level <= 0 || level >= 100 || !isVisible()) return;
+        int alpha = Math.round(90 * (float)Math.sin(Math.PI * phase));
+        if (alpha <= 0) return;
+        paint.setShader(null); paint.setColor(Color.argb(alpha, 255, 255, 255));
+        paint.setXfermode(new android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.SRC_ATOP));
+        paint.setStyle(Paint.Style.STROKE); paint.setStrokeCap(Paint.Cap.BUTT);
+        if (SettingsProvider.FILLED.equals(style)) {
+            float radius = 9.5f * level / 100f;
+            int save = canvas.save(); Path clip = new Path();
+            clip.addCircle(12, 12, radius, Path.Direction.CW); canvas.clipPath(clip);
+            paint.setStrokeWidth(1.8f); canvas.drawCircle(12, 12, radius * phase, paint);
+            canvas.restoreToCount(save);
+        } else if (SettingsProvider.PORTRAIT.equals(style)) {
+            RectF body = new RectF(5.5f, 3.5f, 18.5f, 22f);
+            int save = canvas.save(); Path mask = new Path();
+            mask.addRoundRect(body, 2, 2, Path.Direction.CW); canvas.clipPath(mask);
+            float top = body.bottom - body.height() * level / 100f;
+            canvas.clipRect(body.left, top, body.right, body.bottom);
+            float y = body.bottom - (body.bottom - top) * phase;
+            paint.setStyle(Paint.Style.FILL); canvas.drawRect(body.left, y - 1.5f, body.right, y + 1.5f, paint);
+            canvas.restoreToCount(save);
+        } else if (SettingsProvider.DASHED.equals(style)) {
+            paint.setStrokeWidth(2.9f); float sections = level * 24f / 100f;
+            int index = Math.min(23, (int)(phase * 24));
+            float fraction = Math.max(0, Math.min(1, sections - index));
+            if (fraction > 0) canvas.drawArc(circle, -90 + index * 15, fraction * 10.5f, false, paint);
+        } else {
+            paint.setStrokeWidth(2.6f); float start = phase * 360;
+            float sweep = Math.min(35, level * 3.6f - start);
+            if (sweep > 0) canvas.drawArc(circle, -90 + start, sweep, false, paint);
+        }
+        paint.setAlpha(255); paint.setXfermode(null);
     }
 
     private static int[] gradientColors(boolean radial) {

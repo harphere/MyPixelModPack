@@ -31,7 +31,7 @@ public final class PackDispatcher implements IXposedHookLoadPackage, IXposedHook
 
     @Override public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam load) {
         if (PACK.equals(load.packageName) || "android".equals(load.packageName)) return;
-        XposedBridge.log("MyPixelModPack 2.1.4: dispatcher reached " + load.packageName + " process=" + load.processName);
+        XposedBridge.log("MyPixelModPack 2.2.0: dispatcher reached " + load.packageName + " process=" + load.processName);
         // Vector may deliver package loading before OR after Application.attach.
         // Install both boundaries first, then check for an already attached app.
         try {
@@ -60,7 +60,7 @@ public final class PackDispatcher implements IXposedHookLoadPackage, IXposedHook
         String key = load.packageName + ":" + load.processName;
         try {
             startup.run(key, () -> {
-                XposedBridge.log("MyPixelModPack 2.1.4: starting " + key + " via " + boundary);
+                XposedBridge.log("MyPixelModPack 2.2.0: starting " + key + " via " + boundary);
                 boolean ready = start(ctx, load);
                 if (!ready && unlockWaiters.add(key)) {
                     try {
@@ -114,6 +114,10 @@ public final class PackDispatcher implements IXposedHookLoadPackage, IXposedHook
         if (GBOARD.equals(pkg)) install("cursor", switches, () -> new dev.chet.gboardcursorkeys.CursorModule().handleLoadPackage(load));
         if ("com.android.settings".equals(pkg))
             install("settings_entry", switches, () -> new SettingsShortcutModule().handleLoadPackage(load));
+        if (!UI.equals(pkg) && !LAUNCHERS.contains(pkg) && !GBOARD.equals(pkg) && !"com.android.settings".equals(pkg)) {
+            if (dev.chet.speakercontrol.SpeakerHook.isPhoneHost(ctx, pkg)) install("speaker", switches, () -> new dev.chet.speakercontrol.SpeakerHook().handleLoadPackage(load));
+            install("pie", switches, () -> new dev.chet.chromepiestatusmatch.ChromePie().handleLoadPackage(load));
+        }
         if (!UI.equals(pkg))
             install("match", switches, () -> new com.chet.navbarmatch.NavBarModule().handleLoadPackage(load));
         return true;

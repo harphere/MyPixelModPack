@@ -19,6 +19,7 @@ public final class PackRuntime {
     static void attach(Context ctx, String pkg, String process) {
         context = ctx; packageName = pkg; processName = process;
     }
+    public static Context hostContext() { if (context == null) throw new IllegalStateException("Pack context not ready"); return context; }
     public static SharedPreferences preferences(String store) {
         if (context == null) throw new IllegalStateException("Pack context not ready");
         if (!visibilityRetained) {
@@ -37,7 +38,7 @@ public final class PackRuntime {
         return new Snapshot(data);
     }
     static void report(String feature, String status) {
-        XposedBridge.log("MyPixelModPack 2.1.4: " + processName + " / " + feature + " / " + status);
+        XposedBridge.log("MyPixelModPack 2.2.0: " + processName + " / " + feature + " / " + status);
         try {
             Bundle extras = new Bundle();
             extras.putString("package", packageName); extras.putString("process", processName);

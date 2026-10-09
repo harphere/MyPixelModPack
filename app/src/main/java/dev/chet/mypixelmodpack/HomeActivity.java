@@ -30,7 +30,9 @@ public final class HomeActivity extends Activity {
         {"dots", "Navigation icons", "com.chet.navdotstyle.MainActivity"},
         {"match", "Nav Bar Status Match", "com.chet.navbarmatch.MainActivity"},
         {"network", "Network activity indicator", "com.chet.networkactivity.SettingsActivity"},
-        {"wake", "Double Tap 2 Wake", ""}
+        {"wake", "Double Tap 2 Wake", ""},
+        {"speaker", "SpeakerControl", "dev.chet.speakercontrol.MainActivity"},
+        {"pie", "ChromePie Status Match", "dev.chet.chromepiestatusmatch.settings.PieSettings"}
     };
     private SharedPreferences prefs;
     private LinearLayout page;
@@ -55,6 +57,7 @@ public final class HomeActivity extends Activity {
             note(page,"Version "+BuildConfig.VERSION_NAME+" • Your Pixel, your style");
             navigation("Status bar","Battery, mobile icons and network activity",new int[]{0,2,3,7});
             navigation("Navigation","Icons, OPA animation, cursor arrows and colours",new int[]{1,4,5,6});
+            navigation("Calls & browser","Speakerphone commands and ChromePie",new int[]{9,10});
             navigation("Screen & wake","Double Tap to Wake",new int[]{8});
             navigation("App & diagnostics","Settings shortcut, process reports and scope help",null);
             note(page,"Feature changes require a restart. Keep matching standalone modules disabled.");
@@ -66,7 +69,7 @@ public final class HomeActivity extends Activity {
             action("Startup diagnostics","View process reports and copy the full log",this::diagnostics);
             action("Scope & restart help","Which processes need to restart",this::help);
         } else {
-            int[] indices="Status bar".equals(section)?new int[]{0,2,3,7}:"Navigation".equals(section)?new int[]{1,4,5,6}:new int[]{8};
+            int[] indices="Status bar".equals(section)?new int[]{0,2,3,7}:"Navigation".equals(section)?new int[]{1,4,5,6}:"Calls & browser".equals(section)?new int[]{9,10}:new int[]{8};
             note(page,"Switch changes take effect after the relevant process restarts or the phone reboots.");
             for(int i:indices) feature(i);
         }
@@ -104,6 +107,8 @@ public final class HomeActivity extends Activity {
     }
     private String description(String key) {
         switch(key) {
+            case "speaker": return "Phone calls only. Scope: default Phone app and its InCall UI. Existing Tasker actions and TOKEN remain supported.";
+            case "pie": return "ChromePie menu with status-bar colour matching. Scope: Titanium or supported Chromium browser. Configure the menu here; restart the browser after changes.";
             case "battery": return "Gradient battery styles and placement. Scope: System UI.";
             case "cursor": return "Tap arrows to move one character; hold to repeat. Scope: Gboard and Launcher3. After enabling, force stop Gboard and reopen a text field; restart Launcher3 or reboot.";
             case "mobile": return "Choose the look of 4G and 5G labels. Scope: System UI.";
@@ -117,7 +122,7 @@ public final class HomeActivity extends Activity {
     }
     private void help() {
         new AlertDialog.Builder(this).setTitle("Scope & restart help")
-            .setMessage("System UI: battery, mobile and service icons, network activity, Double Tap to Wake.\n\nLauncher3: navigation icons, OPA and Gboard arrows. Nova is your home app; Launcher3 hosts the navigation row.\n\nGboard: cursor arrows. Force stop Gboard and reopen it after enabling or updating the pack if arrows are missing.\n\nNav Bar Status Match: each target app.\n\nSettings: optional pack shortcut.\n\nSystem Framework is unnecessary. Reboot applies all feature changes. Keep matching standalone modules disabled.")
+            .setMessage("System UI: battery, mobile and service icons, network activity, Double Tap to Wake.\n\nLauncher3: navigation icons, OPA and Gboard arrows. Nova is your home app; Launcher3 hosts the navigation row.\n\nGboard: cursor arrows. Force stop Gboard and reopen it after enabling or updating the pack if arrows are missing.\n\nNav Bar Status Match: each target app.\n\nSpeakerControl: default Phone app and InCall UI. Phone calls only.\n\nChromePie: Titanium or supported Chromium browser. Disable the standalone ChromePie Status Match module.\n\nSettings: optional pack shortcut.\n\nSystem Framework is unnecessary. Reboot applies all feature changes. Keep matching standalone modules disabled.")
             .setPositiveButton("Got it",null).show();
     }
     private void refreshAccess() {

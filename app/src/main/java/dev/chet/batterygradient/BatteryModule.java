@@ -228,6 +228,7 @@ public final class BatteryModule implements IXposedHookLoadPackage {
                         || (status == BatteryManager.BATTERY_STATUS_FULL
                         && intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) != 0);
                 drawable.setCharging(charging);
+                drawable.setActivelyCharging(status == BatteryManager.BATTERY_STATUS_CHARGING);
                 icon.setContentDescription("Battery " + Math.round(raw * 100f / scale)
                         + " percent" + (charging ? ", charging" : ""));
                 hideNative();
@@ -246,7 +247,7 @@ public final class BatteryModule implements IXposedHookLoadPackage {
             this.group = group;
             this.insideStockBattery = insideStockBattery;
             this.stockBattery = stockBattery;
-            icon = new ImageView(group.getContext());
+            icon = new AnimatedBatteryView(group.getContext());
             icon.setImageDrawable(drawable);
             icon.setScaleType(ImageView.ScaleType.FIT_CENTER);
             icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
@@ -309,6 +310,7 @@ public final class BatteryModule implements IXposedHookLoadPackage {
             android.os.Bundle options = SettingsProvider.getDisplayOptions(group.getContext());
             drawable.setStyle(options.getString("style", SettingsProvider.FILLED));
             drawable.setShowPercentage(options.getBoolean("show_percentage", false));
+            drawable.setAnimationEnabled(options.getBoolean("charging_animation", true));
         }
 
         void hideNative() {
@@ -330,6 +332,8 @@ public final class BatteryModule implements IXposedHookLoadPackage {
         }
 
         void detach() {
+            drawable.setVisible(false, false);
+            drawable.stopAnimation();
             Context context = group.getContext();
             if (listening) {
                 try { context.unregisterReceiver(batteryReceiver); } catch (Throwable ignored) { }

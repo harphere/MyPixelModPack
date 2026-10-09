@@ -35,6 +35,7 @@ public final class SettingsProvider extends ContentProvider {
         Bundle fallback = new Bundle();
         fallback.putString("style", FILLED);
         fallback.putBoolean("show_percentage", false);
+        fallback.putBoolean("charging_animation", true);
         return fallback;
     }
 
@@ -78,6 +79,11 @@ public final class SettingsProvider extends ContentProvider {
                     .putString("style", sanitize(arg)).apply();
             context.getContentResolver().notifyChange(URI, null);
         }
+        if ("set_animation".equals(method) && Binder.getCallingUid() == Process.myUid()
+                && ("true".equals(arg) || "false".equals(arg))) {
+            context.getSharedPreferences("battery", 0).edit().putBoolean("charging_animation", Boolean.parseBoolean(arg)).apply();
+            context.getContentResolver().notifyChange(URI, null);
+        }
         if ("set_percentage".equals(method) && Binder.getCallingUid() == Process.myUid()
                 && ("true".equals(arg) || "false".equals(arg))) {
             context.getSharedPreferences("battery", 0).edit()
@@ -101,6 +107,7 @@ public final class SettingsProvider extends ContentProvider {
             context.getSharedPreferences("battery", 0).edit()
                     .putString("status", when + " — " + safe).apply();
         }
+        out.putBoolean("charging_animation", context.getSharedPreferences("battery", 0).getBoolean("charging_animation", true));
         out.putBoolean("show_percentage", context.getSharedPreferences("battery", 0)
                 .getBoolean("show_percentage", false));
         out.putString("status", context.getSharedPreferences("battery", 0)

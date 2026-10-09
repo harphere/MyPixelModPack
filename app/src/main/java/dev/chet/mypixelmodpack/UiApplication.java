@@ -51,6 +51,8 @@ public final class UiApplication extends Application {
         if(name.contains("navdotstyle")) return "Navigation icons";
         if(name.contains("navbarmatch")) return "Nav Bar Status Match";
         if(name.contains("networkactivity")) return "Network activity";
+        if(name.contains("speakercontrol")) return "SpeakerControl";
+        if(name.contains("chromepiestatusmatch")) return "ChromePie Status Match";
         return "Gboard arrows";
     }
     private static void recolor(View view) {

@@ -22,6 +22,7 @@ public final class SettingsActivity extends Activity {
     private final GradientBatteryDrawable preview = new GradientBatteryDrawable();
     private final Handler main = new Handler(Looper.getMainLooper());
     private TextView statusView;
+    private ImageView previewView;
     private final Runnable refreshStatus = new Runnable() {
         @Override public void run() {
             if (statusView != null) statusView.setText("System UI: "
@@ -46,8 +47,9 @@ public final class SettingsActivity extends Activity {
         detail.setPadding(0, dp(10), 0, dp(16));
         root.addView(detail);
 
-        ImageView icon = new ImageView(this);
+        ImageView icon = new AnimatedBatteryView(this);
         icon.setImageDrawable(preview);
+        previewView = icon;
         LinearLayout.LayoutParams iconLayout = new LinearLayout.LayoutParams(dp(144), dp(108));
         iconLayout.gravity = Gravity.CENTER_HORIZONTAL;
         root.addView(icon, iconLayout);
@@ -61,6 +63,7 @@ public final class SettingsActivity extends Activity {
         preview.setCharging(status == BatteryManager.BATTERY_STATUS_CHARGING
                 || (status == BatteryManager.BATTERY_STATUS_FULL && battery != null
                 && battery.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) != 0));
+        preview.setActivelyCharging(status == BatteryManager.BATTERY_STATUS_CHARGING);
         preview.setShowPercentage(SettingsProvider.getDisplayOptions(this)
                 .getBoolean("show_percentage", false));
 
@@ -90,6 +93,17 @@ public final class SettingsActivity extends Activity {
             preview.setShowPercentage(checked);
         });
         root.addView(percentage);
+        Switch animation = new Switch(this); animation.setText("Charging animation");
+        animation.setChecked(SettingsProvider.getDisplayOptions(this).getBoolean("charging_animation", true));
+        preview.setAnimationEnabled(animation.isChecked());
+        animation.setOnCheckedChangeListener((button, checked) -> {
+            getContentResolver().call(SettingsProvider.URI, "set_animation", String.valueOf(checked), null);
+            preview.setAnimationEnabled(checked);
+        }); root.addView(animation);
+        Switch chargingPreview = new Switch(this); chargingPreview.setText("Preview charging");
+        chargingPreview.setChecked(status == BatteryManager.BATTERY_STATUS_CHARGING);
+        chargingPreview.setOnCheckedChangeListener((button, checked) -> preview.setCharging(checked));
+        root.addView(chargingPreview);
 
         TextView selector = text("Status bar style", 18);
         selector.setPadding(0, dp(20), 0, dp(8));
@@ -116,7 +130,7 @@ public final class SettingsActivity extends Activity {
         }
         preview.setStyle(selected);
         root.addView(styles);
-        TextView note = text("Enable Battery Gradient in LSPosed and scope it to System UI. "
+        TextView note = text("Enable Battery gradient in My Pixel Mod Pack and scope the Pack to System UI. "
                 + "Restart System UI once after enabling the module. Style changes apply live.", 14);
         note.setPadding(0, dp(24), 0, 0);
         root.addView(note);
@@ -128,11 +142,13 @@ public final class SettingsActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
         main.removeCallbacks(refreshStatus);
+        preview.setVisible(true, false);
         main.post(refreshStatus);
     }
 
     @Override protected void onPause() {
         main.removeCallbacks(refreshStatus);
+        preview.setVisible(false, false);
         super.onPause();
     }
 
