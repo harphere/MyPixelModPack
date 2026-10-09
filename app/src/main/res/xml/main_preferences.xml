@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:name="pref_screen_name" android:key="pref_screen_key">
+
+    <Preference
+        android:key="kill_chrome"
+        android:title="@string/kill_chrome"
+        android:summary="@string/kill_chrome_summary"
+        android:icon="@drawable/ic_launch_white" />
+    <Preference
+        android:key="edit_pie_menu"
+        android:title="@string/edit_pie_menu_title"
+        android:summary="@string/edit_pie_menu_summary" />
+    <MultiSelectListPreference
+        android:key="trigger_side_set"
+        android:title="@string/trigger_side"
+        android:entries="@array/trigger_side_entries"
+        android:entryValues="@array/trigger_side_values"
+        android:defaultValue="@array/trigger_side_values" />
+    <dev.chet.chromepiestatusmatch.settings.preference.PieSeekBarPreference
+        android:key="pie_radius_inc"
+        android:title="@string/pie_size_title"
+        android:defaultValue="@integer/qc_radius_increment"
+        minimum="60"
+        maximum="200" />
+    <dev.chet.chromepiestatusmatch.settings.preference.PieSeekBarPreference
+        android:key="pie_slop"
+        android:title="@string/trigger_area_title"
+        android:defaultValue="@integer/qc_slop"
+        minimum="5"
+        maximum="30" />
+    <CheckBoxPreference
+        android:key="reposition_menu"
+        android:title="@string/reposition_menu_title"
+        android:summary="@string/reposition_menu_summary"
+        android:defaultValue="false" />
+    <CheckBoxPreference
+        android:key="apply_theme_color"
+        android:title="@string/pie_theme_color_title"
+        android:summary="@string/pie_theme_color_summary"
+        android:defaultValue="true" />
+    <ListPreference
+        android:key="pie_icon_color_mode"
+        android:title="@string/pie_icon_color_title"
+        android:summary="%s"
+        android:entries="@array/pie_icon_color_entries"
+        android:entryValues="@array/pie_icon_color_values"
+        android:defaultValue="auto" />
+    <CheckBoxPreference
+        android:key="hide_launcher_icon"
+        android:title="@string/hide_launcher_icon_title"
+        android:defaultValue="false" />
+
+</PreferenceScreen>
