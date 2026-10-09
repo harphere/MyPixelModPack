@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
+<uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
 <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
 <application android:name="dev.chet.mypixelmodpack.UiApplication" android:forceQueryable="true" android:label="My Pixel Mod Pack" android:icon="@drawable/ic_wand" android:theme="@style/AppTheme" android:allowBackup="false">
 <activity android:name="dev.chet.mypixelmodpack.HomeActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity>
