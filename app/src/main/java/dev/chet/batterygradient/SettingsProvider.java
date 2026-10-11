@@ -15,7 +15,7 @@ public final class SettingsProvider extends ContentProvider {
     public static final String FILLED = "filled";
     public static final String DASHED = "dashed";
     public static final String CIRCLE = "circle";
-    public static final String PORTRAIT = "portrait";
+    public static final String PORTRAIT = "portrait"; // Legacy saved/Tasker key now displays Landscape Battery J.
     public static final String DEFAULT = "default";
 
     @Override public boolean onCreate() { return true; }

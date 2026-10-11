@@ -43,7 +43,7 @@ public final class SettingsActivity extends Activity {
         TextView title = text("Battery Gradient", 24);
         root.addView(title);
         TextView detail = text("Filled circle drains from the outside in: green outer edge, yellow, amber and red centre. "
-                + "Portrait drains from the top, with green at the top and red at the bottom.", 15);
+                + "Landscape Battery J drains from right to left, with red at the left and green at the right.", 15);
         detail.setPadding(0, dp(10), 0, dp(16));
         root.addView(detail);
 
@@ -110,7 +110,7 @@ public final class SettingsActivity extends Activity {
         root.addView(selector);
         RadioGroup styles = new RadioGroup(this);
         styles.setOrientation(RadioGroup.VERTICAL);
-        String[] names = {"Filled circle (outside in)", "Dashed circle", "Circle", "Portrait"};
+        String[] names = {"Filled circle (outside in)", "Dashed circle", "Circle", "Landscape (Battery J)"};
         String[] values = {SettingsProvider.FILLED, SettingsProvider.DASHED,
                 SettingsProvider.CIRCLE, SettingsProvider.PORTRAIT};
         String selected = SettingsProvider.getSelectedStyle(this);
