@@ -10,12 +10,12 @@ import hashlib, json
 lock = json.loads((root / 'release-source-sha256.json').read_text())
 for name, digest in lock.items():
     file = root / name
-    assert file.is_file() and hashlib.sha256(file.read_bytes()).hexdigest() == digest, f'Mixed/incomplete 3.0 source: {name}; replace with the complete ZIP'
+    assert file.is_file() and hashlib.sha256(file.read_bytes()).hexdigest() == digest, f'Mixed/incomplete 3.0.1 source: {name}; replace with the complete ZIP'
 locked_main = {name for name in lock if name.startswith('app/src/main/')}
-actual_main = {str(file.relative_to(root)) for file in (root / 'app/src/main').rglob('*') if file.is_file()}
+actual_main = {str(file.relative_to(root)) for file in (root / 'app/src/main').rglob('*') if file.is_file() and file.name != '.gitkeep'}
 assert actual_main == locked_main, f'Obsolete/missing app files: {actual_main ^ locked_main}'
 build = (root / 'app/build.gradle').read_text()
-assert "versionName '3.0'" in build and 'versionCode 36;' in build
+assert "versionName '3.0.1'" in build and 'versionCode 37;' in build
 assert "implementation 'org.apache.commons:commons-lang3:3.4'" in build
 assert 'android.nonFinalResIds=false' in (root / 'gradle.properties').read_text()
 src = root / 'app/src/main'
@@ -98,4 +98,4 @@ assert {'android.permission.KILL_BACKGROUND_PROCESSES', 'android.permission.EXPA
 assert 'charging_animation' in (java / 'dev/chet/batterygradient/SettingsProvider.java').read_text()
 assert 'new AnimatedBatteryView' in (java / 'dev/chet/batterygradient/BatteryModule.java').read_text()
 assert 'chromepie_v1' in (java / 'dev/chet/mypixelmodpack/PackSettingsProvider.java').read_text()
-print('Verified complete 3.0 sources, dependencies, permissions and charging animation')
+print('Verified complete 3.0.1 sources, dependencies, permissions and charging animation')
