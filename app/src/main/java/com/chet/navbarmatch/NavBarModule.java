@@ -465,8 +465,8 @@ public final class NavBarModule extends LegacyModule {
             window.setNavigationBarContrastEnforced(false);
 
             // Keep the real system appearance signal synchronized with the
-            // background we apply. Black glyphs are requested only for a truly
-            // white/near-white navigation bar; every coloured or dark background
+            // background we apply. Black glyphs are requested for a white or
+            // near-white neutral navigation bar; every coloured or dark background
             // requests white glyphs. Launcher3/Quickstep consumes this signal.
             updateNavigationIconAppearance(window, desired);
 
@@ -484,7 +484,7 @@ public final class NavBarModule extends LegacyModule {
     @SuppressWarnings("deprecation")
     private void updateNavigationIconAppearance(Window window, int background) {
         final int mask = WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
-        final int appearance = isWhiteBackground(background) ? mask : 0;
+        final int appearance = NavIconContrast.useDarkIcons(background) ? mask : 0;
         try {
             WindowInsetsController controller = window.getInsetsController();
             if (controller != null) controller.setSystemBarsAppearance(appearance, mask);
@@ -498,13 +498,6 @@ public final class NavBarModule extends LegacyModule {
             else flags &= ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
             decor.setSystemUiVisibility(flags);
         } catch (Throwable ignored) { }
-    }
-
-    private boolean isWhiteBackground(int color) {
-        int r = Color.red(color), g = Color.green(color), b = Color.blue(color);
-        int max = Math.max(r, Math.max(g, b));
-        int min = Math.min(r, Math.min(g, b));
-        return min >= 250 && max - min <= 5;
     }
 
     private void updateBottomProtectionOverlay(Window window, ActivityState state, int color) {
