@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VoServiceFrame"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="#111111" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Select independent VoWiFi and VoLTE status-bar styles. Scope this module to System UI in LSPosed, then restart SystemUI after changing a selection."
+            android:textSize="15sp"
+            android:textColor="#555555" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:text="VoWiFi"
+            android:textSize="21sp"
+            android:textStyle="bold"
+            android:textColor="#111111" />
+
+        <com.chet.voserviceframe.IconPreviewView
+            android:id="@+id/vowifiPreview"
+            android:layout_width="match_parent"
+            android:layout_height="84dp"
+            android:layout_marginTop="8dp" />
+
+        <RadioGroup
+            android:id="@+id/vowifiGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <RadioButton android:id="@+id/vowifiV1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="V1 — Square frame" />
+            <RadioButton android:id="@+id/vowifiV2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="V2 — Rounded square" />
+            <RadioButton android:id="@+id/vowifiV3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="V3 — Open corners" />
+            <RadioButton android:id="@+id/vowifiV4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="V4 — Wi-Fi waves" />
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:text="VoLTE"
+            android:textSize="21sp"
+            android:textStyle="bold"
+            android:textColor="#111111" />
+
+        <com.chet.voserviceframe.IconPreviewView
+            android:id="@+id/voltePreview"
+            android:layout_width="match_parent"
+            android:layout_height="84dp"
+            android:layout_marginTop="8dp" />
+
+        <RadioGroup
+            android:id="@+id/volteGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <RadioButton android:id="@+id/volteV1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="V1 — Square frame" />
+            <RadioButton android:id="@+id/volteV2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="V2 — Rounded square" />
+            <RadioButton android:id="@+id/volteV3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="V3 — Open corners" />
+            <RadioButton android:id="@+id/volteV4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="V4 — Cellular bars" />
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/restartButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:text="Restart SystemUI (root)" />
+
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="24dp"
+            android:text="Changes are saved immediately."
+            android:textSize="13sp"
+            android:textColor="#666666" />
+    </LinearLayout>
+</ScrollView>
