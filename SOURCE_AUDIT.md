@@ -1,9 +1,12 @@
-# Source audit — 3.0
+# Source audit — 3.1.0
 
-Audited the exact delivered MyPixelModPack-source-v2.2.0-charging-speaker-chromepie.zip, not the surviving 2.1.4 working folder. The ZIP is version 2.2.0 / code 35; its UI uses BuildConfig.VERSION_NAME. An installed UI reporting 2.1.4 therefore does not identify that complete 2.2.0 build.
+Baseline: delivered MyPixelModPack-source-v3.0.1.zip. Version 3.1.0 / code 38. Existing package, signing key, saved switches, blacklist and providers are preserved.
 
-All eleven components and the optional Settings shortcut are present and independently gated. SpeakerControl/ChromePie sources, permissions, activities, resources, provider store and commons-lang3 dependency are included. Java 17 / Gradle 8.11.1 / AGP 8.9.2 / SDK 36 / build-tools 35.0.0 are retained.
+- Battery: legacy portrait style key retained, display/geometry replaced with slim horizontal Battery J perimeter and four segments adapted from Iconify commit 5515543241d906af78ad44751ea96933a7ad7cc7. Pack gradient, continuous level clipping, optional percentage, right bolt and charging lifecycle retained. Landscape pulse moves left to right.
+- ChromePie: near-white test now requires minimum RGB channel 232 and spread at most 16. Wikipedia #EAECF0 consequently uses the existing opaque grey/black-icon treatment. Sampling, retries, attachment hooks and non-light icon preferences are unchanged.
+- Version/CI diagnostics and source fingerprints updated. Exact signing key unchanged. .gitkeep tolerance retained.
+- Gboard, OPA, navigation icons, Nav Match, network activity, mobile/service icons, DT2W and SpeakerControl sources match 3.0.1; no new system hooks or services.
 
-Changes are restricted to shared startup/version diagnostics, battery lifecycle/animation, Nav Match lifecycle and build verification. Gboard, OPA, navigation icons, mobile/service icons, network activity, DT2W, SpeakerControl and ChromePie algorithms retain their 2.2.0 sources. The package, development signing key, saved switches, blacklist and appearance stores are preserved. Full source hashes enforce a coherent release upload.
+Upstream geometry sources and licensing: THIRD_PARTY_NOTICES.md and LICENSE. Local checks do not replace physical-device verification.
 
-Version 3.0 / code 36. Device injection, ROM-specific hooks and actual app surfaces still require testing on the user's phone.
+The Xposed API is added to testRuntimeOnly so the new real PieMenu colour tests can load its utility exception types; it remains compileOnly for the released APK.
