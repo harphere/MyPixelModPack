@@ -419,16 +419,16 @@ public class PieMenu extends FrameLayout {
     }
 
     private static boolean isNearWhite(int color) {
-        return Color.red(color) >= 240 && Color.green(color) >= 240
-                && Color.blue(color) >= 240;
+        int min = Math.min(Color.red(color), Math.min(Color.green(color), Color.blue(color)));
+        int max = Math.max(Color.red(color), Math.max(Color.green(color), Color.blue(color)));
+        return min >= 232 && max - min <= 16;
     }
 
     private int contrastForeground(int background) {
         // Keep dark foreground on the new grey fill, including its selected slices.
         if (mLightPie) return Color.BLACK;
         // White safety override takes priority over the user's white-icon preference.
-        if (Color.red(background) >= 240 && Color.green(background) >= 240
-                && Color.blue(background) >= 240) return Color.BLACK;
+        if (isNearWhite(background)) return Color.BLACK;
         if ("white".equals(mIconColorMode)) return Color.WHITE;
         if ("black".equals(mIconColorMode)) return Color.BLACK;
         double r = linearChannel(Color.red(background));
