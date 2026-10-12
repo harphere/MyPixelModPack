@@ -32,12 +32,19 @@ public class BatteryRenderingTest {
         assertTrue(Color.red(half.getPixel(120,160))>Color.green(half.getPixel(120,160)));
         assertTrue(Color.alpha(empty.getPixel(120,160))<100);
     }
-    @Test public void portraitRemovesTopGreenAndRetainsBottomRed() {
+    @Test public void landscapeRemovesRightGreenAndRetainsLeftRed() {
         Bitmap full=render(SettingsProvider.PORTRAIT,100), half=render(SettingsProvider.PORTRAIT,50);
-        int top=full.getPixel(75,55), bottom=half.getPixel(75,200);
+        int top=full.getPixel(160,120), bottom=half.getPixel(55,120);
         assertTrue(Color.green(top)>Color.red(top));
-        assertTrue(Color.alpha(half.getPixel(75,55))<100);
+        assertTrue(Color.alpha(half.getPixel(160,120))<100);
         assertTrue(Color.red(bottom)>Color.green(bottom));
+    }
+    @Test public void landscapeFrameIsWideAndSlimWithFourSegments() {
+        Bitmap image=render(SettingsProvider.PORTRAIT,100);
+        assertEquals(0, Color.alpha(image.getPixel(100,50)));
+        assertEquals(0, Color.alpha(image.getPixel(100,190)));
+        for(int x:new int[]{55,90,120,160}) assertEquals(255,Color.alpha(image.getPixel(x,120)));
+        for(int x:new int[]{78,108,140}) assertEquals(0,Color.alpha(image.getPixel(x,120)));
     }
     @Test public void portraitSelectionAndOverrideRoundTrip() {
         var c=RuntimeEnvironment.getApplication();
@@ -87,7 +94,7 @@ public class BatteryRenderingTest {
         for(int row=0;row<3;row++) for(int col=0;col<levels.length;col++) {
             Bitmap icon=render(row==1?SettingsProvider.PORTRAIT:SettingsProvider.FILLED,levels[col],row==2,col==4);
             canvas.drawBitmap(icon,col*320,row*310+30,null);
-            canvas.drawText((row==1?"Portrait ":row==2?"With percentage ":"Circle ")+levels[col]+"%",col*320+35,row*310+290,text);
+            canvas.drawText((row==1?"Landscape J ":row==2?"With percentage ":"Circle ")+levels[col]+"%",col*320+35,row*310+290,text);
         }
         File f=new File(dir,"battery-preview.png");f.getParentFile().mkdirs();
         try(FileOutputStream out=new FileOutputStream(f)){sheet.compress(Bitmap.CompressFormat.PNG,100,out);}

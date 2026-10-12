@@ -79,7 +79,7 @@ public class ChargingAnimationTest {
             Paint label=new Paint(Paint.ANTI_ALIAS_FLAG);label.setColor(Color.WHITE);label.setTextSize(20);
             for(int i=0;i<4;i++) {
                 canvas.drawBitmap(render(styles[i],frame/24f,true,75),(i%2)*320,(i/2)*270,null);
-                canvas.drawText(styles[i]+" • 75%",(i%2)*320+70,(i/2)*270+250,label);
+                canvas.drawText((SettingsProvider.PORTRAIT.equals(styles[i]) ? "Landscape J" : styles[i])+" • 75%",(i%2)*320+70,(i/2)*270+250,label);
             }
             try(java.io.FileOutputStream out=new java.io.FileOutputStream(new java.io.File(directory,String.format("frame-%02d.png",frame)))) {
                 sheet.compress(Bitmap.CompressFormat.PNG,100,out);
