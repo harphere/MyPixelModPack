@@ -255,6 +255,7 @@ public final class BatteryModule implements IXposedHookLoadPackage {
             }
         };
         boolean listening;
+        int sizePercent = 100;
         final Runnable animationReport = new Runnable() {
             @Override public void run() {
             if (icon.isAttachedToWindow()) {
@@ -315,8 +316,8 @@ public final class BatteryModule implements IXposedHookLoadPackage {
             if (icon.getParent() == target && target.indexOfChild(icon) == last) return;
             if (icon.getParent() instanceof ViewGroup)
                 ((ViewGroup) icon.getParent()).removeView(icon);
-            int px = Math.round(24 * target.getResources().getDisplayMetrics().density);
-            int width = Math.round(32 * target.getResources().getDisplayMetrics().density);
+            int px = Math.round(24 * target.getResources().getDisplayMetrics().density * sizePercent / 100f);
+            int width = Math.round(32 * target.getResources().getDisplayMetrics().density * sizePercent / 100f);
             int index = target.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL
                     ? 0 : target.getChildCount();
             if (target instanceof LinearLayout) {
@@ -330,7 +331,19 @@ public final class BatteryModule implements IXposedHookLoadPackage {
 
         void readStyle() {
             android.os.Bundle options = SettingsProvider.getDisplayOptions(group.getContext());
-            drawable.setStyle(options.getString("style", SettingsProvider.FILLED));
+            String style = options.getString("style", SettingsProvider.FILLED);
+            drawable.setStyle(style);
+            drawable.setOrientation(options.getString("orientation", "portrait"));
+            sizePercent = SettingsProvider.clampSize(options.getInt("size_percent", SettingsProvider.defaultSize(style)));
+            ViewGroup.LayoutParams lp = icon.getLayoutParams();
+            if (lp != null) {
+                float density = group.getResources().getDisplayMetrics().density;
+                int width = Math.round(32 * density * sizePercent / 100f);
+                int height = Math.round(24 * density * sizePercent / 100f);
+                if (lp.width != width || lp.height != height) {
+                    lp.width = width; lp.height = height; icon.setLayoutParams(lp);
+                }
+            }
             drawable.setShowPercentage(options.getBoolean("show_percentage", false));
             drawable.setAnimationEnabled(options.getBoolean("charging_animation", true));
             icon.removeCallbacks(animationReport);

@@ -23,6 +23,11 @@ public final class SettingsActivity extends Activity {
     private final Handler main = new Handler(Looper.getMainLooper());
     private TextView statusView;
     private ImageView previewView;
+    private String previewStyle;
+    private SeekBar sizeSlider;
+    private TextView sizeReading;
+    private RadioGroup orientationGroup;
+    private boolean refreshingControls;
     private final Runnable refreshStatus = new Runnable() {
         @Override public void run() {
             if (statusView != null) statusView.setText("System UI: "
@@ -43,7 +48,7 @@ public final class SettingsActivity extends Activity {
         TextView title = text("Battery Gradient", 24);
         root.addView(title);
         TextView detail = text("Filled circle drains from the outside in: green outer edge, yellow, amber and red centre. "
-                + "Landscape Battery J drains from right to left, with red at the left and green at the right.", 15);
+                + "Rectangular battery drains from the top in portrait mode or from the right in landscape mode.", 15);
         detail.setPadding(0, dp(10), 0, dp(16));
         root.addView(detail);
 
@@ -110,10 +115,11 @@ public final class SettingsActivity extends Activity {
         root.addView(selector);
         RadioGroup styles = new RadioGroup(this);
         styles.setOrientation(RadioGroup.VERTICAL);
-        String[] names = {"Filled circle (outside in)", "Dashed circle", "Circle", "Landscape (Battery J)"};
+        String[] names = {"Filled circle (outside in)", "Dashed circle", "Circle", "Rectangular (portrait / landscape)"};
         String[] values = {SettingsProvider.FILLED, SettingsProvider.DASHED,
                 SettingsProvider.CIRCLE, SettingsProvider.PORTRAIT};
         String selected = SettingsProvider.getSelectedStyle(this);
+        previewStyle = selected;
         for (int i = 0; i < names.length; i++) {
             RadioButton button = new RadioButton(this);
             button.setId(View.generateViewId());
@@ -124,12 +130,46 @@ public final class SettingsActivity extends Activity {
             if (values[i].equals(selected)) button.setChecked(true);
             final String value = values[i];
             button.setOnClickListener(v -> {
+                previewStyle = value;
                 preview.setStyle(value);
+                refreshSizeControls();
                 getContentResolver().call(SettingsProvider.URI, "set", value, null);
             });
         }
         preview.setStyle(selected);
         root.addView(styles);
+        sizeReading = text("", 16); root.addView(sizeReading);
+        sizeSlider = new SeekBar(this); sizeSlider.setMax(75); root.addView(sizeSlider);
+        sizeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override public void onProgressChanged(SeekBar bar, int value, boolean user) {
+                if (refreshingControls) return;
+                int percent = value + 25;
+                sizeReading.setText("Size for this style: " + percent + "%");
+                preview.setScalePercent(percent);
+                if (user) {
+                    Bundle options = new Bundle(); options.putInt("percent", percent);
+                    getContentResolver().call(SettingsProvider.URI, "set_size", previewStyle, options);
+                }
+            }
+            @Override public void onStartTrackingTouch(SeekBar bar) { }
+            @Override public void onStopTrackingTouch(SeekBar bar) {
+                Bundle options = new Bundle(); options.putInt("percent", bar.getProgress() + 25);
+                getContentResolver().call(SettingsProvider.URI, "set_size", previewStyle, options);
+            }
+        });
+        TextView orientationLabel = text("Rectangular orientation", 16); root.addView(orientationLabel);
+        orientationGroup = new RadioGroup(this); orientationGroup.setOrientation(RadioGroup.HORIZONTAL);
+        for (String orientation : new String[]{"portrait", "landscape"}) {
+            RadioButton button = new RadioButton(this); button.setId(View.generateViewId());
+            button.setText("portrait".equals(orientation) ? "Portrait" : "Landscape");
+            button.setTag(orientation); orientationGroup.addView(button);
+            button.setOnClickListener(v -> {
+                getContentResolver().call(SettingsProvider.URI, "set_orientation", orientation, null);
+                preview.setOrientation(orientation);
+            });
+        }
+        root.addView(orientationGroup);
+        refreshSizeControls();
         TextView note = text("Enable Battery gradient in My Pixel Mod Pack and scope the Pack to System UI. "
                 + "Restart System UI once after enabling the module. Style changes apply live.", 14);
         note.setPadding(0, dp(24), 0, 0);
@@ -139,6 +179,20 @@ public final class SettingsActivity extends Activity {
         root.addView(statusView);
     }
 
+    private void refreshSizeControls() {
+        if (sizeSlider == null) return;
+        Bundle options = SettingsProvider.getDisplayOptions(this);
+        int size = options.getInt("size_" + previewStyle, SettingsProvider.defaultSize(previewStyle));
+        refreshingControls = true; sizeSlider.setProgress(size - 25); refreshingControls = false;
+        sizeReading.setText("Size for this style: " + size + "%");
+        preview.setScalePercent(size);
+        String orientation = options.getString("orientation", "portrait"); preview.setOrientation(orientation);
+        for (int i = 0; i < orientationGroup.getChildCount(); i++) {
+            RadioButton button = (RadioButton)orientationGroup.getChildAt(i);
+            button.setChecked(orientation.equals(button.getTag()));
+            button.setEnabled(SettingsProvider.PORTRAIT.equals(previewStyle));
+        }
+    }
     @Override protected void onResume() {
         super.onResume();
         main.removeCallbacks(refreshStatus);

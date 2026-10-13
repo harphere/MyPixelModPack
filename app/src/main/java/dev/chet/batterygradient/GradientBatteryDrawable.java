@@ -22,10 +22,11 @@ public final class GradientBatteryDrawable extends Drawable {
     private boolean showPercentage;
     private boolean animationEnabled = true, animationRunning;
     private long animationStart;
-    private final Path landscapePerimeter = BatteryJPaths.perimeter();
-    private final Path landscapeFill = BatteryJPaths.fillMask();
-    private static final RectF LANDSCAPE_FILL = new RectF(5f, 9.602f, 16.77f, 14.398f);
     private float phase;
+    private int scalePercent = 100;
+    private boolean landscape;
+    public void setScalePercent(int value) { scalePercent = SettingsProvider.clampSize(value); invalidateSelf(); }
+    public void setOrientation(String value) { landscape = "landscape".equals(value); invalidateSelf(); }
     private long frameCount;
     private final Runnable frame = new Runnable() {
         @Override public void run() {
@@ -86,11 +87,13 @@ public final class GradientBatteryDrawable extends Drawable {
         if (bounds.isEmpty()) return;
         int saved = canvas.save();
         canvas.translate(bounds.left, bounds.top);
-        float scale = Math.min(bounds.width() / 32f, bounds.height() / 24f);
+        float scale = Math.min(bounds.width() / 32f, bounds.height() / 24f) * scalePercent / 100f;
         canvas.translate((bounds.width() - 32f * scale) / 2f,
                 (bounds.height() - 24f * scale) / 2f);
         canvas.scale(scale, scale);
         int bodyLayer = canvas.saveLayer(0, 0, 24, 24, null);
+        int bodyTransform = canvas.save();
+        if (SettingsProvider.PORTRAIT.equals(style) && landscape) canvas.rotate(90, 12, 12);
         int color = levelColor(level);
         RectF circle = new RectF(2.5f, 2.5f, 21.5f, 21.5f);
         paint.reset();
@@ -117,21 +120,26 @@ public final class GradientBatteryDrawable extends Drawable {
                     mix(color, Color.WHITE, .22f), color, Shader.TileMode.CLAMP));
             if (level > 0) canvas.drawArc(circle, -90, level * 3.6f, false, paint);
         } else if (SettingsProvider.PORTRAIT.equals(style)) {
+            RectF body = new RectF(5.5f, 3.5f, 18.5f, 22f);
             paint.setStyle(Paint.Style.FILL);
-            paint.setColor(Color.LTGRAY);
-            canvas.drawPath(landscapePerimeter, paint);
             paint.setColor(Color.argb(70, 120, 120, 120));
-            canvas.drawPath(landscapeFill, paint);
+            canvas.drawRoundRect(body, 2f, 2f, paint);
+            paint.setColor(Color.LTGRAY);
+            canvas.drawRoundRect(new RectF(9f, 1f, 15f, 3.5f), .7f, .7f, paint);
             int clip = canvas.save();
-            canvas.clipPath(landscapeFill);
-            paint.setColor(Color.WHITE);
-            paint.setShader(new LinearGradient(LANDSCAPE_FILL.left, 0, LANDSCAPE_FILL.right, 0,
-                    gradientColors(true), gradientStops(), Shader.TileMode.CLAMP));
-            if (level > 0) canvas.drawRect(LANDSCAPE_FILL.left, LANDSCAPE_FILL.top,
-                    LANDSCAPE_FILL.left + LANDSCAPE_FILL.width() * level / 100f,
-                    LANDSCAPE_FILL.bottom, paint);
+            Path mask = new Path();
+            mask.addRoundRect(body, 2f, 2f, Path.Direction.CW);
+            canvas.clipPath(mask);
+            paint.setShader(new LinearGradient(0, body.top, 0, body.bottom,
+                    gradientColors(false), gradientStops(), Shader.TileMode.CLAMP));
+            if (level > 0) canvas.drawRect(body.left, body.bottom - body.height() * level / 100f,
+                    body.right, body.bottom, paint);
             canvas.restoreToCount(clip);
             paint.setShader(null);
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(1f);
+            paint.setColor(Color.LTGRAY);
+            canvas.drawRoundRect(body, 2f, 2f, paint);
         } else {
             // Keep a fixed full-size track; remove the outer coloured rings first.
             paint.setStyle(Paint.Style.FILL);
@@ -148,6 +156,7 @@ public final class GradientBatteryDrawable extends Drawable {
             canvas.drawCircle(12, 12, 9.5f, paint);
         }
         drawChargingPulse(canvas, circle);
+        canvas.restoreToCount(bodyTransform);
         canvas.restoreToCount(bodyLayer);
         paint.setShader(null);
         paint.setAlpha(255);
@@ -155,13 +164,12 @@ public final class GradientBatteryDrawable extends Drawable {
         if (showPercentage) {
             paint.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
             paint.setTextAlign(Paint.Align.CENTER);
-            boolean landscape = SettingsProvider.PORTRAIT.equals(style);
-            paint.setTextSize(landscape ? 6.6f : level == 100 ? 8.3f : 9.6f);
+            paint.setTextSize(level == 100 ? 8.3f : 9.6f);
             String label = String.valueOf(level);
             paint.setColor(Color.argb(205, 18, 27, 25));
-            canvas.drawText(label, landscape ? 11.1f : 12.25f, landscape ? 14.5f : 15.4f, paint);
+            canvas.drawText(label, 12.25f, 15.4f, paint);
             paint.setColor(Color.WHITE);
-            canvas.drawText(label, landscape ? 10.7f : 11.85f, landscape ? 14.1f : 15f, paint);
+            canvas.drawText(label, 11.85f, 15f, paint);
         }
         if (charging) {
             // Dedicated right-hand lane: never cover the battery colour or label.
@@ -170,10 +178,6 @@ public final class GradientBatteryDrawable extends Drawable {
             bolt.lineTo(28f, 13f); bolt.lineTo(26f, 20f);
             bolt.lineTo(31.5f, 10f); bolt.lineTo(28f, 10f);
             bolt.lineTo(30f, 4f); bolt.close();
-            if (SettingsProvider.PORTRAIT.equals(style)) {
-                android.graphics.Matrix slim = new android.graphics.Matrix();
-                slim.setScale(.65f, .65f, 28f, 12f); bolt.transform(slim);
-            }
             paint.setStyle(Paint.Style.STROKE);
             paint.setStrokeWidth(.8f);
             paint.setStrokeJoin(Paint.Join.ROUND);
@@ -200,13 +204,13 @@ public final class GradientBatteryDrawable extends Drawable {
             paint.setStrokeWidth(1.8f); canvas.drawCircle(12, 12, radius * phase, paint);
             canvas.restoreToCount(save);
         } else if (SettingsProvider.PORTRAIT.equals(style)) {
-            int save = canvas.save();
-            canvas.clipPath(landscapeFill);
-            float right = LANDSCAPE_FILL.left + LANDSCAPE_FILL.width() * level / 100f;
-            canvas.clipRect(LANDSCAPE_FILL.left, LANDSCAPE_FILL.top, right, LANDSCAPE_FILL.bottom);
-            float x = LANDSCAPE_FILL.left + (right - LANDSCAPE_FILL.left) * phase;
-            paint.setStyle(Paint.Style.FILL);
-            canvas.drawRect(x - 1.1f, LANDSCAPE_FILL.top, x + 1.1f, LANDSCAPE_FILL.bottom, paint);
+            RectF body = new RectF(5.5f, 3.5f, 18.5f, 22f);
+            int save = canvas.save(); Path mask = new Path();
+            mask.addRoundRect(body, 2, 2, Path.Direction.CW); canvas.clipPath(mask);
+            float top = body.bottom - body.height() * level / 100f;
+            canvas.clipRect(body.left, top, body.right, body.bottom);
+            float y = body.bottom - (body.bottom - top) * phase;
+            paint.setStyle(Paint.Style.FILL); canvas.drawRect(body.left, y - 1.5f, body.right, y + 1.5f, paint);
             canvas.restoreToCount(save);
         } else if (SettingsProvider.DASHED.equals(style)) {
             paint.setStrokeWidth(2.9f); float sections = level * 24f / 100f;

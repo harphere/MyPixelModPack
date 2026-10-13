@@ -137,12 +137,14 @@ public final class HomeActivity extends Activity {
     }
     private void diagnostics() {
         StringBuilder text=new StringBuilder("My Pixel Mod Pack "+BuildConfig.VERSION_NAME+"\nSaved switches (restart required):\n");
-        text.append("versionCode=").append(BuildConfig.VERSION_CODE).append("; build_id=pack-3.1.0-r1\n");
+        text.append("versionCode=").append(BuildConfig.VERSION_CODE).append("; build_id=pack-3.2.0-r1\n");
         for(String[] f:FEATURES) text.append(f[0]).append('=').append(prefs.getBoolean(f[0],false)).append('\n');
         android.os.Bundle batteryOptions=dev.chet.batterygradient.SettingsProvider.getDisplayOptions(this);
         text.append("\nBattery settings: style=").append(batteryOptions.getString("style"))
             .append("; percentage=").append(batteryOptions.getBoolean("show_percentage"))
-            .append("; charging_animation=").append(batteryOptions.getBoolean("charging_animation",true)).append("\n");
+            .append("; charging_animation=").append(batteryOptions.getBoolean("charging_animation",true))
+            .append("; size=").append(batteryOptions.getInt("size_percent",100)).append("%")
+            .append("; orientation=").append(batteryOptions.getString("orientation","portrait")).append("\n");
         text.append("System UI battery report: ").append(dev.chet.batterygradient.SettingsProvider.getStatus(this)).append("\n");
         SharedPreferences matchPrefs=getSharedPreferences("nav_match_v2",MODE_PRIVATE);
         text.append("\nNav Bar Match settings:\nmodule_enabled=").append(matchPrefs.getBoolean("enabled",true));

@@ -15,8 +15,12 @@ public final class SettingsProvider extends ContentProvider {
     public static final String FILLED = "filled";
     public static final String DASHED = "dashed";
     public static final String CIRCLE = "circle";
-    public static final String PORTRAIT = "portrait"; // Legacy saved/Tasker key now displays Landscape Battery J.
+    public static final String PORTRAIT = "portrait";
     public static final String DEFAULT = "default";
+
+    public static int defaultSize(String style) { return PORTRAIT.equals(style) ? 50 : 100; }
+    public static int clampSize(int value) { return Math.max(25, Math.min(100, value)); }
+    private static boolean knownStyle(String style) { return FILLED.equals(style) || DASHED.equals(style) || CIRCLE.equals(style) || PORTRAIT.equals(style); }
 
     @Override public boolean onCreate() { return true; }
 
@@ -79,6 +83,17 @@ public final class SettingsProvider extends ContentProvider {
                     .putString("style", sanitize(arg)).apply();
             context.getContentResolver().notifyChange(URI, null);
         }
+        if ("set_size".equals(method) && Binder.getCallingUid() == Process.myUid()
+                && knownStyle(arg) && extras != null && extras.containsKey("percent")) {
+            context.getSharedPreferences("battery", 0).edit().putInt("size_" + arg,
+                    clampSize(extras.getInt("percent"))).apply();
+            context.getContentResolver().notifyChange(URI, null);
+        }
+        if ("set_orientation".equals(method) && Binder.getCallingUid() == Process.myUid()
+                && ("portrait".equals(arg) || "landscape".equals(arg))) {
+            context.getSharedPreferences("battery", 0).edit().putString("portrait_orientation", arg).apply();
+            context.getContentResolver().notifyChange(URI, null);
+        }
         if ("set_animation".equals(method) && Binder.getCallingUid() == Process.myUid()
                 && ("true".equals(arg) || "false".equals(arg))) {
             context.getSharedPreferences("battery", 0).edit().putBoolean("charging_animation", Boolean.parseBoolean(arg)).apply();
@@ -118,6 +133,12 @@ public final class SettingsProvider extends ContentProvider {
                 .getString("style_override", null);
         out.putString("style", "selected".equals(method) ? selected
                 : override == null ? selected : sanitize(override));
+        var prefs = context.getSharedPreferences("battery", 0);
+        for (String style : new String[]{FILLED, DASHED, CIRCLE, PORTRAIT})
+            out.putInt("size_" + style, clampSize(prefs.getInt("size_" + style, defaultSize(style))));
+        String active = out.getString("style", FILLED);
+        out.putInt("size_percent", out.getInt("size_" + active, defaultSize(active)));
+        out.putString("orientation", prefs.getString("portrait_orientation", "portrait"));
         return out;
     }
 
