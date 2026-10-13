@@ -1,4 +1,4 @@
-name: Build MyPixelModPack 3.1.0
+name: Build MyPixelModPack 3.2.0
 on: [workflow_dispatch, push]
 jobs:
   build:
@@ -11,6 +11,7 @@ jobs:
           rm -f app/src/main/java/com/chet/navbarmatch/ModuleApp.java
           rm -f app/src/main/java/dev/chet/mypixelmodpack/PackApp.java
           rm -f app/src/main/java/dev/chet/mypixelmodpack/FeatureGate.java
+          rm -f app/src/main/java/dev/chet/batterygradient/BatteryJPaths.java
           rm -rf app/src/main/resources/META-INF/xposed
       - name: Check refreshed module structure
         run: python3 scripts/check_pack.py
@@ -32,9 +33,9 @@ jobs:
       - name: Verify APK version and signature
         run: |
           python3 scripts/check_apk.py app/build/outputs/apk/release/app-release.apk
-          cp app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/MyPixelModPack-3.1.0.apk
+          cp app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/MyPixelModPack-3.2.0.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: MyPixelModPack-3.1.0
-          path: app/build/outputs/apk/release/MyPixelModPack-3.1.0.apk
+          name: MyPixelModPack-3.2.0
+          path: app/build/outputs/apk/release/MyPixelModPack-3.2.0.apk
           if-no-files-found: error
