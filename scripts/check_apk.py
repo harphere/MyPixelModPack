@@ -6,6 +6,6 @@ sdk = Path(os.environ.get('ANDROID_HOME') or os.environ['ANDROID_SDK_ROOT'])
 tools = sdk / 'build-tools/35.0.0'
 badging = subprocess.check_output([str(tools / 'aapt'), 'dump', 'badging', str(apk)], text=True)
 identity = re.search(r"package: name='([^']+)' versionCode='([^']+)' versionName='([^']+)'", badging)
-assert identity and identity.groups() == ('dev.chet.mypixelmodpack', '38', '3.1.0'), badging.splitlines()[:1]
+assert identity and identity.groups() == ('dev.chet.mypixelmodpack', '39', '3.2.0'), badging.splitlines()[:1]
 subprocess.run([str(tools / 'apksigner'), 'verify', '--verbose', str(apk)], check=True)
-print('Verified APK: MyPixelModPack 3.1.0, versionCode 38, package and signature')
+print('Verified APK: MyPixelModPack 3.2.0, versionCode 39, package and signature')

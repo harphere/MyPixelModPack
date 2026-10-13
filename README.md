@@ -1,57 +1,42 @@
-# My Pixel Mod Pack 3.1.0
+# My Pixel Mod Pack 3.2.0
 
-Complete source for one legacy LSPosed/Vector APK, updated from delivered 3.0.1. Adds a slim Landscape Battery J and extends ChromePie pale-grey contrast handling. Version 3.1.0 uses versionCode 38. Package ID, signing key and settings stores are preserved. See REPLACE_FILES.md for an exact incremental replacement list.
-
-Version 3.1.0 strengthens charging ticker recovery, System UI battery fallback attachment, Nav Bar Match lifecycle handling and bounded settings-startup retries. The existing Gboard reconnect implementation is preserved; recovery after every physical reboot remains unverified.
-
-## Battery J landscape and Wikipedia pie correction
-
-The portrait selection now displays **Landscape (Battery J)**: Iconify's slim horizontal perimeter and four fill segments, with the Pack's red → amber → yellow → green gradient from left to right. Fill drains continuously from right to left. The neutral segment track and outline remain visible. The percentage is still optional; its smaller label fits the horizontal frame, and the right-side charging bolt is scaled to suit the slimmer body. Charging animation sweeps left to right through the remaining fill and retains all visibility/full/unplugged stop conditions.
-
-The saved style key and existing Tasker argument `portrait` are preserved for compatibility and now choose this landscape style. Existing users selecting portrait switch automatically; the other three battery styles retain their implementation.
-
-Iconify references: [LandscapeBatteryJ.kt](https://github.com/Mahmud0808/Iconify/blob/5515543241d906af78ad44751ea96933a7ad7cc7/app/src/main/java/com/drdisagree/iconify/xposed/modules/statusbar/batterystyles/LandscapeBatteryJ.kt) and [battery_configs.xml](https://github.com/Mahmud0808/Iconify/blob/5515543241d906af78ad44751ea96933a7ad7cc7/app/src/main/res/values/battery_configs.xml). See THIRD_PARTY_NOTICES.md and LICENSE.
-
-ChromePie now recognises very light neutral colours such as Wikipedia's observed #EAECF0. These use an opaque #E8E8E8 pie with black icons, even if the icon preference is White. Selected/submenu shades remain distinct and opaque. Coloured/dark menus and their icon preferences retain their existing behaviour. Status-colour sampling and its existing bounded retries are unchanged; this fixes the pale-grey classification shown in the supplied screenshot.
-
-## Near-white navigation icon correction
-
-Titanium's supplied screenshot has a pale navigation background around #F9F9FC. The earlier rule required every RGB channel to be at least 250, so it requested white glyphs on this shade. This update requests black navigation icons on very light neutral backgrounds (minimum channel 232; channel spread at most 16). Dark and strongly coloured backgrounds retain white icons. This changes the app's navigation appearance signal consumed by Launcher3 custom icons; ChromePie menu colouring is unchanged.
-
-The source check now tolerates .gitkeep placeholders, while still rejecting mismatched source hashes and extra real app files.
+Complete source based on delivered 3.1.0. Restores the original rectangular portrait battery, adds portrait/landscape orientation and independent size settings for all four battery styles. ChromePie pale-grey and navigation contrast fixes are retained. Package and signing key are unchanged; versionCode 39.
 
 ## Build and update
 
-Replace the complete repository source with this ZIP's contents, including `.github/workflows/build.yml`, root Gradle files, `app/build.gradle`, manifest, scripts and release-source-sha256.json. Do not upload only the Java files or reuse an old workflow/Gradle file. Run Actions → **Build MyPixelModPack 3.1.0**. Source fingerprint checks reject incomplete/mixed uploads; final APK checks require package dev.chet.mypixelmodpack, versionName 3.1.0 and versionCode 38. Download the **MyPixelModPack-3.1.0** artifact and install **MyPixelModPack-3.1.0.apk**. Confirm **Version 3.1.0** on the Pack home page before testing. Download and extract the APK artifact, then install the APK as an update. Package ID and included signing key are unchanged. Keep your existing signing configuration if you have replaced the development key in your repository. Do not uninstall the Pack: an update preserves saved Pack switches and appearance settings.
+See REPLACE_FILES.md for the exact changed files. Upload the complete ZIP contents to the repository root, including the supplied workflow, Gradle files and release-source-sha256.json. Run **Build MyPixelModPack 3.2.0**, download its artifact, install **MyPixelModPack-3.2.0.apk** as an update and reboot. Confirm Version 3.2.0 on the home page. Settings and existing scopes are preserved. No System Framework scope is required.
 
-Both new features start OFF. In the Pack, open **Calls & browser**, configure the feature, then enable its switch. Add the relevant apps to the Pack scope in LSPosed/Vector. Disable the matching standalone modules and reboot once to load the updated hooks. You can keep the standalone APKs installed; their settings remain separate. ChromePie settings are not automatically imported into the Pack: configure its menu, trigger edges and icon colour once under **Customize**.
+## Battery controls
+
+Open **Status bar → Battery gradient → Customize**.
+
+- Filled circle: retains outside-in discharge and the fixed green/yellow/amber/red gradient.
+- Dashed circle and ring: retain the existing renderers.
+- Rectangular: the previous portrait shape, continuous fill and top-to-bottom colour scheme are restored. Choose Portrait or Landscape; landscape rotates the body/fill/pulse clockwise, giving green at the right and red at the left, draining right to left. Percentage stays upright; the lightning bolt stays to the right.
+- **Size for this style:** 25–100% of the previous dimensions, saved separately for each style. Rectangle defaults to 50%; circle styles default to 100%. Switching styles restores that style's size. Both width and height scale proportionally; 50% means half each dimension.
+- Existing optional percentage and charging animation controls remain. Animation is visible only while charging below 100%, and stops while hidden, detached, screen off, full, disabled or unplugged. Preview charging and its level slider remain available.
+
+Style, size and orientation apply through the existing live observer. The System UI icon's actual layout space is resized with it. The saved `portrait` style key and existing Tasker style argument are preserved. Battery J is removed; the workflow removes its obsolete source automatically. The setting defaults back to Portrait at half size on upgrade.
+
+## Tower status-symbol concepts
+
+`docs/tower-style-concepts.png` / `.svg` compare the supplied Tower/Router Wi-Fi and lattice-tower data artwork with new vibration, alarm-clock, speakerphone and mute concepts. Editable Android vector candidates are in `docs/tower-vectors/`.
+
+These are design previews, not active hooks. Shared theme selection can make matching status symbols follow a Wi-Fi/data style, but that requires a theme selector or supported access to the selected overlay and verified ROM slot/state handling. The current source preserves existing hooks while the designs are reviewed. Clock means the alarm status symbol, rather than the time text. Speakerphone/mute state integration must be verified against the ROM's available slots.
 
 ## Scope
 
 | Feature | Pack scope |
 | --- | --- |
 | Battery, mobile/service icons, network activity, DT2W | System UI |
-| Navigation icons, OPA, Gboard navigation-row arrows | Launcher3 |
+| Navigation icons, OPA and Gboard navigation arrows | Launcher3 |
 | Gboard input/cursor commands | Gboard |
 | Nav Bar Status Match | Each target app |
-| SpeakerControl | Default Phone app; InCall UI if your ROM separates it |
+| SpeakerControl | Default Phone app / separate InCall UI |
 | ChromePie Status Match | Titanium / supported Chromium browser |
 | Optional Settings shortcut | Android Settings |
 
-System Framework is not required. Keep corresponding standalone modules disabled when using a Pack feature. Changing feature switches requires the host process to restart or a reboot. Appearance changes can apply live where stated below.
-
-## Charging battery animation
-
-Battery **Customize** now has a live **Charging animation** switch, enabled by default. The percentage switch, outside-in filled-circle discharge, landscape gradient and right-hand lightning bolt remain.
-
-- Filled circle: a highlight expands from the centre to the current fill edge.
-- Landscape Battery J: a highlight travels horizontally through the remaining fill.
-- Dashed circle: segments brighten clockwise along the charged portion.
-- Ring: a short highlight sweeps clockwise along the charged portion.
-
-These highlights preserve the underlying colour scheme and measured level. Frames are scheduled at roughly 30 fps over a 1.8-second cycle, only while actively charging with a nonempty, nonfull battery and a visible icon on an interactive display. Frames stop on detach, hiding, screen off, animation OFF, unplugging, or full charge. No permanent background service or polling loop is added. The charging bolt can remain at full charge while plugged in. **Preview charging** lets you view the effect without connecting a charger; adjust the preview level below 100%.
-
-`docs/charging-preview.gif` shows the 3.1.0 native Android drawable renders, not a phone screenshot.
+Keep matching standalone modules disabled for enabled Pack features. Hook feature switches require restart/reboot; appearance settings apply live where supported.
 
 ## SpeakerControl
 
@@ -77,22 +62,9 @@ Retains icon mode Auto / White / Black, automatic black icons for white/near-whi
 
 ChromePie has a private `chromepie_v1` settings store, read through the same Pack snapshot provider as the existing components. No world-readable preferences or zygote initialization are used. Pending menu attachment is cancelled when an activity is destroyed and each activity gets at most one Pack menu. Standalone launcher hiding is omitted because the Pack has one shared launcher entry.
 
-## Existing features and diagnostics
 
-Battery gradient, Gboard arrows, mobile type styles, VoLTE/VoWiFi, OPA, navigation icons, Nav Bar Match, network activity and Double Tap to Wake remain independently gated. The 2.0.2 app visibility grants and provider retry path, optional Settings entry, feature settings stores, one legacy entry point and APK signing key remain in place.
+## Diagnostics and validation
 
-Use **App & diagnostics → Startup diagnostics** for versionCode/build ID, battery options and last process reports. New host reports carry their hook version. The battery animation report includes charging status, visibility, running state and executed frame count; Nav Match reports include hook installation and PixelCopy sample results. Older host reports remain historical until those processes restart. These are historical reports, not proof that a UI hook is currently active. Use Vector logs tagged `SpeakerControl`, `ChromePieMatch` / `ChromePie` or `GboardCursorKeys` for actual hook/command details. **Refresh app access** remains available for scoped apps that cannot see settings.
+Startup diagnostics now include active battery size and orientation, plus existing saved switches, provider-access information and version-labelled host reports. Reports are historical, not a live health check.
 
-## Validation and limits
-
-See `VALIDATION.md` for this release; `docs/validation-v2.2.0.md` is historical. Local Android builds and automated rendering/lifecycle/settings tests do not substitute for Vector injection and phone testing. The combined SpeakerControl/ChromePie integration needs confirmation on the device; keep the working standalone APKs available while testing.
-
-ChromePie/AOSP source copyright and Apache notices are retained in the source files. This is a private source build combining the supplied working components.
-
-## Preserved version 3.0 timing changes
-
-- Settings failures at startup receive at most four delayed attempts (250 ms, then 1 s, 3 s, 10 s apart), plus the existing unlock retry. Successful or potentially partial installations retain the deduplication claim. No all-features-on fallback is used.
-- Battery animation restarts when its visible ImageView callback is restored or the view reattaches. It still stops while hidden, detached, screen off, unplugged, full or disabled. BatteryMeterView attachment can install the status-row icon even if the controller path did not fire.
-- Nav Match uses Instrumentation Activity resume/pause/destroy boundaries, posts attachment until the decor is ready, coalesces layout samples, preserves its three delayed rechecks, cancels pending work on pause/destroy and ignores late PixelCopy results from inactive Activities. Existing colour selection, blacklist, contrast and bottom overlay rules remain.
-
-After installing, open the Pack once to refresh app access, check **3.1.0**, verify existing scopes and reboot. Keep matching standalone modules disabled for enabled Pack features. Test animation while actually charging below 100%; preview charging is available without a charger. Test Nav Match by reopening a scoped, non-blacklisted app. If a problem remains, copy the new diagnostics before toggling switches.
+See VALIDATION.md for checks and device-test limits. Native previews are in docs/battery-preview.png, docs/battery-sizing-preview.png and docs/charging-preview.gif. Tower concepts are preview-only assets and do not alter the active icon theme.
