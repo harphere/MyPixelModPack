@@ -20,6 +20,7 @@ public final class MobileTypeFrame implements IXposedHookInitPackageResources, I
     private static final String SYSTEM_UI = "com.android.systemui";
     private static final Uri SETTINGS = Uri.parse("content://dev.chet.mypixelmodpack.mobile.settings");
     private static final String[][] ICONS = {
+        {"ic_3g_mobiledata", "3G"},
         {"ic_4g_mobiledata", "4G"},
         {"ic_4g_plus_mobiledata", "4G+"},
         {"ic_lte_mobiledata", "LTE"},

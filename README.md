@@ -1,10 +1,10 @@
-# My Pixel Mod Pack 3.2.0
+# My Pixel Mod Pack 3.3.0
 
-Complete source based on delivered 3.1.0. Restores the original rectangular portrait battery, adds portrait/landscape orientation and independent size settings for all four battery styles. ChromePie pale-grey and navigation contrast fixes are retained. Package and signing key are unchanged; versionCode 39.
+Adds Karyl-inspired outlined and Nishiki-inspired softly filled network badges with original rounded vector lettering. Removes Side Waves, Italic and Bold Italic; saved removed styles migrate to Square. Includes all 3.2.1 features and brighter charging animations. VersionCode 41; package/signing key unchanged.
 
 ## Build and update
 
-See REPLACE_FILES.md for the exact changed files. Upload the complete ZIP contents to the repository root, including the supplied workflow, Gradle files and release-source-sha256.json. Run **Build MyPixelModPack 3.2.0**, download its artifact, install **MyPixelModPack-3.2.0.apk** as an update and reboot. Confirm Version 3.2.0 on the home page. Settings and existing scopes are preserved. No System Framework scope is required.
+See REPLACE_FILES.md for the exact changed files. Upload the complete ZIP contents to the repository root, including the supplied workflow, Gradle files and release-source-sha256.json. Run **Build MyPixelModPack 3.3.0**, download its artifact, install **MyPixelModPack-3.3.0.apk** as an update and reboot. Confirm Version 3.3.0 on the home page. Settings and existing scopes are preserved. No System Framework scope is required.
 
 ## Battery controls
 

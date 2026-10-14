@@ -1,37 +1,5 @@
-# Updating 3.1.0 → 3.2.0
+# Update to 3.3.0
 
-Copy files from this ZIP to the same repository paths and commit them together.
+Replace the complete repository source with this ZIP, including .github/workflows/build.yml, Gradle files, scripts and release-source-sha256.json. Run Build MyPixelModPack 3.3.0, install its APK as an update and reboot.
 
-## Replace build files
-
-- .github/workflows/build.yml
-- app/build.gradle
-- scripts/check_pack.py
-- scripts/check_apk.py
-- release-source-sha256.json
-
-## Replace existing Java/tests
-
-- app/src/main/java/dev/chet/batterygradient/GradientBatteryDrawable.java
-- app/src/main/java/dev/chet/batterygradient/BatteryModule.java
-- app/src/main/java/dev/chet/batterygradient/SettingsProvider.java
-- app/src/main/java/dev/chet/batterygradient/SettingsActivity.java
-- app/src/main/java/dev/chet/mypixelmodpack/HomeActivity.java
-- app/src/test/java/dev/chet/batterygradient/BatteryRenderingTest.java
-
-## Add
-
-- app/src/test/java/dev/chet/batterygradient/BatterySizingTest.java
-- app/src/test/java/dev/chet/batterygradient/BatterySizingUiTest.java
-
-## Remove obsolete file
-
-- app/src/main/java/dev/chet/batterygradient/BatteryJPaths.java
-
-The supplied workflow also removes this obsolete file before checking/building, so a stale copy will not block the Actions build.
-
-Copy the updated README.md, SOURCE_AUDIT.md, VALIDATION.md, THIRD_PARTY_NOTICES.md, REPLACE_FILES.md and docs folder for instructions and previews. Keep the existing signing key and manifest.
-
-Run **Build MyPixelModPack 3.2.0**, install **MyPixelModPack-3.2.0.apk** as an update and reboot. In Battery Customize select Rectangular, choose Portrait or Landscape, and adjust Size for this style. Defaults are 50% for rectangle and 100% for circle styles. All style sizes are independent.
-
-Tower XML/SVG/PNG files under docs are design previews. They do not enable a new status-icon theme or new hooks.
+Choose Karyl or Nishiki in Mobile data icon settings. Side Waves, Italic and Bold Italic have been removed. Saved selections of those styles fall back to Square. Signing key, scopes and other component settings are retained.

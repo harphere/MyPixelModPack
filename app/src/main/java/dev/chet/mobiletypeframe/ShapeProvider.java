@@ -10,11 +10,10 @@ import android.os.Bundle;
 public final class ShapeProvider extends ContentProvider {
     public static final String SQUARE = "square";
     public static final String FILLED = "filled";
-    public static final String ITALIC = "italic";
-    public static final String BOLD_ITALIC = "bold_italic";
     public static final String WAVES = "waves";
     public static final String OPEN_CORNERS = "open_corners";
-    public static final String SIDE_WAVES = "side_waves";
+    public static final String KARYL = "karyl";
+    public static final String NISHIKI = "nishiki";
     static final String PREFS = "mobile_type_frame";
     static final int DEFAULT_FONT_PERCENT = 150;
 
@@ -23,18 +22,19 @@ public final class ShapeProvider extends ContentProvider {
                 ? percent : DEFAULT_FONT_PERCENT;
     }
 
+    static String validShape(String shape) {
+        return SQUARE.equals(shape) || FILLED.equals(shape) || WAVES.equals(shape)
+                || OPEN_CORNERS.equals(shape) || KARYL.equals(shape) || NISHIKI.equals(shape)
+                ? shape : SQUARE;
+    }
+
     @Override public boolean onCreate() { return true; }
 
     @Override public Bundle call(String method, String arg, Bundle extras) {
         if (!"getShape".equals(method)) return null;
         Bundle result = new Bundle();
         String shape = getContext().getSharedPreferences(PREFS, 0).getString("shape", SQUARE);
-        if (!SQUARE.equals(shape) && !FILLED.equals(shape)
-                && !ITALIC.equals(shape) && !BOLD_ITALIC.equals(shape)
-                && !WAVES.equals(shape)
-                && !OPEN_CORNERS.equals(shape) && !SIDE_WAVES.equals(shape)) {
-            shape = SQUARE;
-        }
+        shape = validShape(shape);
         result.putString("shape", shape);
         result.putInt("fontPercent", validFontPercent(getContext()
                 .getSharedPreferences(PREFS, 0)

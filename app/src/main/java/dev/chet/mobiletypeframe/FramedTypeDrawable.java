@@ -27,17 +27,18 @@ public final class FramedTypeDrawable extends Drawable {
     public FramedTypeDrawable(String label, float density, String shape, int fontPercent) {
         this.label = label;
         this.density = density;
-        this.shape = shape;
+        this.shape = ShapeProvider.validShape(shape);
         this.fontPercent = ShapeProvider.validFontPercent(fontPercent);
-        int weight = ShapeProvider.ITALIC.equals(shape) ? Typeface.ITALIC
-                : ShapeProvider.BOLD_ITALIC.equals(shape) ? Typeface.BOLD_ITALIC
-                : Typeface.BOLD;
-        paint.setTypeface(Typeface.create("sans-serif-condensed", weight));
+        paint.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
     }
 
     @Override public void draw(Canvas canvas) {
         Rect b = getBounds();
         if (b.isEmpty()) return;
+        if (ShapeProvider.KARYL.equals(shape) || ShapeProvider.NISHIKI.equals(shape)) {
+            drawRoundedBadge(canvas, b);
+            return;
+        }
         float width = b.width(), height = b.height();
         float inset = Math.max(0.7f * density, height * 0.07f);
         float stroke = Math.max(0.8f * density, height * 0.085f);
@@ -46,10 +47,7 @@ public final class FramedTypeDrawable extends Drawable {
         paint.setColorFilter(filter);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(stroke);
-        if (ShapeProvider.ITALIC.equals(shape)
-                || ShapeProvider.BOLD_ITALIC.equals(shape)) {
-            // Typography-only styles deliberately have no surrounding artwork.
-        } else if (ShapeProvider.WAVES.equals(shape)) {
+        if (ShapeProvider.WAVES.equals(shape)) {
             // Two short radio waves above the upper-right edge of the glyph.
             float right = b.right - inset;
             float top = b.top + inset;
@@ -59,16 +57,6 @@ public final class FramedTypeDrawable extends Drawable {
             canvas.drawArc(right - height * .39f, top + height * .16f,
                     right + height * .01f, top + height * .49f,
                     205, 83, false, paint);
-        } else if (ShapeProvider.SIDE_WAVES.equals(shape)) {
-            // Three concentric arcs to the right, as in the supplied reference.
-            float cx = b.left + width * .60f;
-            float cy = b.exactCenterY();
-            paint.setStrokeWidth(Math.max(.68f * density, height * .055f));
-            for (int i = 0; i < 3; i++) {
-                float radius = height * (.24f + .15f * i);
-                canvas.drawArc(cx - radius, cy - radius, cx + radius, cy + radius,
-                        -66f, 132f, false, paint);
-            }
         } else if (ShapeProvider.OPEN_CORNERS.equals(shape)) {
             float l = b.left + inset, t = b.top + inset;
             float r = b.right - inset, bottom = b.bottom - inset;
@@ -98,12 +86,8 @@ public final class FramedTypeDrawable extends Drawable {
 
         paint.setStyle(Paint.Style.FILL);
         paint.setTextAlign(Paint.Align.CENTER);
-        boolean unboxed = ShapeProvider.WAVES.equals(shape)
-                || ShapeProvider.SIDE_WAVES.equals(shape)
-                || ShapeProvider.ITALIC.equals(shape)
-                || ShapeProvider.BOLD_ITALIC.equals(shape);
-        float availableWidth = ShapeProvider.SIDE_WAVES.equals(shape)
-                ? width * .60f : width - (unboxed ? 2f : 4.4f) * inset;
+        boolean unboxed = ShapeProvider.WAVES.equals(shape);
+        float availableWidth = width - (unboxed ? 2f : 4.4f) * inset;
         float availableHeight = height - (unboxed ? 2.5f : 3.5f) * inset;
         paint.setTextSize(availableHeight * 0.94f * fontPercent / 100f);
         float measured = paint.measureText(label);
@@ -111,8 +95,7 @@ public final class FramedTypeDrawable extends Drawable {
         Paint.FontMetrics fm = paint.getFontMetrics();
         float baseline = b.exactCenterY() - (fm.ascent + fm.descent) / 2f
                 + (ShapeProvider.WAVES.equals(shape) ? height * .10f : 0f);
-        float textCenter = ShapeProvider.SIDE_WAVES.equals(shape)
-                ? b.left + width * .30f : b.exactCenterX();
+        float textCenter = b.exactCenterX();
         if (ShapeProvider.FILLED.equals(shape)) {
             paint.setColorFilter(null);
             paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
@@ -124,23 +107,80 @@ public final class FramedTypeDrawable extends Drawable {
         }
     }
 
+    private void drawRoundedBadge(Canvas canvas, Rect b) {
+        boolean filled = ShapeProvider.NISHIKI.equals(shape);
+        float h = b.height(), w = b.width();
+        float inset = h * .065f;
+        paint.setColor(color); paint.setColorFilter(filter);
+        paint.setStrokeJoin(Paint.Join.ROUND); paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStyle(filled ? Paint.Style.FILL : Paint.Style.STROKE);
+        paint.setStrokeWidth(h * .085f);
+        paint.setAlpha(Math.round(alpha * (filled ? .30f : .72f)));
+        canvas.drawRoundRect(b.left + inset, b.top + inset, b.right - inset,
+                b.bottom - inset, h * .23f, h * .23f, paint);
+        paint.setAlpha(alpha);
+        paint.setStyle(Paint.Style.STROKE);
+        // Original glyph paths: no external font or artwork dependency.
+        float emWidth = label.length() * 7.8f - 1.8f;
+        float scale = Math.min((w - h * .33f) / emWidth,
+                h * .63f / 9f * fontPercent / 150f);
+        int save = canvas.save();
+        canvas.translate(b.exactCenterX() - emWidth * scale / 2f,
+                b.exactCenterY() - 4.5f * scale);
+        canvas.scale(scale, scale);
+        paint.setStrokeWidth(filled ? 2.15f : 1.65f);
+        for (int i = 0; i < label.length(); i++) {
+            android.graphics.Path path = roundedGlyph(label.charAt(i));
+            canvas.drawPath(path, paint);
+            canvas.translate(7.8f, 0);
+        }
+        canvas.restoreToCount(save);
+        paint.setStrokeCap(Paint.Cap.BUTT);
+    }
+
+    static android.graphics.Path roundedGlyph(char c) {
+        android.graphics.Path p = new android.graphics.Path();
+        switch (c) {
+            case '3':
+                p.moveTo(0,0); p.lineTo(4,0); p.quadTo(6,0,6,2.2f);
+                p.quadTo(6,4.5f,3,4.5f); p.quadTo(6,4.5f,6,6.8f);
+                p.quadTo(6,9,4,9); p.lineTo(0,9); break;
+            case '4':
+                p.moveTo(1,0); p.lineTo(0,5); p.lineTo(6,5);
+                p.moveTo(5,0); p.lineTo(5,9); break;
+            case '5':
+                p.moveTo(6,0); p.lineTo(0,0); p.lineTo(0,4.2f); p.lineTo(4,4.2f);
+                p.quadTo(6,4.2f,6,6.5f); p.quadTo(6,9,3.5f,9); p.lineTo(0,9); break;
+            case 'G':
+                p.moveTo(6,1); p.quadTo(5.5f,0,3,0); p.quadTo(0,0,0,3);
+                p.lineTo(0,6); p.quadTo(0,9,3,9); p.lineTo(6,9);
+                p.lineTo(6,5); p.lineTo(3.5f,5); break;
+            case 'L': p.moveTo(0,0); p.lineTo(0,9); p.lineTo(6,9); break;
+            case 'T': p.moveTo(0,0); p.lineTo(6,0); p.moveTo(3,0); p.lineTo(3,9); break;
+            case 'E':
+                p.moveTo(6,0); p.lineTo(0,0); p.lineTo(0,9); p.lineTo(6,9);
+                p.moveTo(0,4.5f); p.lineTo(5,4.5f); break;
+            case '+': p.moveTo(0,4.5f); p.lineTo(6,4.5f); p.moveTo(3,1.5f); p.lineTo(3,7.5f); break;
+            default: p.addRoundRect(0,0,6,9,1,1,android.graphics.Path.Direction.CW);
+        }
+        return p;
+    }
+
     @Override public int getIntrinsicWidth() {
         float em = label.length() > 2 ? 26f : 21f;
-        if (ShapeProvider.SIDE_WAVES.equals(shape)) em = label.length() > 2 ? 38f : 31f;
         if (ShapeProvider.OPEN_CORNERS.equals(shape)) em += 1f;
         // Keep the intrinsic height at 16dp: SystemUI constrains the icon view's height.
         // Widen the artwork to let larger letters retain their requested text size.
         float inset = Math.max(.7f, 16f * .07f);
-        boolean sideWaves = ShapeProvider.SIDE_WAVES.equals(shape);
-        boolean unboxed = sideWaves || ShapeProvider.WAVES.equals(shape)
-                || ShapeProvider.ITALIC.equals(shape)
-                || ShapeProvider.BOLD_ITALIC.equals(shape);
+        if (ShapeProvider.KARYL.equals(shape) || ShapeProvider.NISHIKI.equals(shape)) {
+            // Widen as the selected letter size increases; keep the badge 16dp tall.
+            return Math.round(Math.max(em, 6f + label.length() * 6.8f * fontPercent / 100f) * density);
+        }
+        boolean unboxed = ShapeProvider.WAVES.equals(shape);
         paint.setTextSize((16f - (unboxed ? 2.5f : 3.5f) * inset)
                 * .94f * fontPercent / 100f * density);
         float textWidth = paint.measureText(label);
-        float minimumWidth = sideWaves
-                ? (textWidth + 2f * density) / .60f
-                : textWidth + (unboxed ? 2f : 4.4f) * inset * density;
+        float minimumWidth = textWidth + (unboxed ? 2f : 4.4f) * inset * density;
         return Math.round(Math.max(em * density, minimumWidth));
     }
     @Override public int getIntrinsicHeight() { return Math.round(16f * density); }

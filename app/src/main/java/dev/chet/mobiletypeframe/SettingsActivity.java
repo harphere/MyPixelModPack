@@ -28,7 +28,7 @@ public final class SettingsActivity extends Activity {
         page.addView(title);
 
         TextView subtitle = new TextView(this);
-        subtitle.setText("Choose your network icon style");
+        subtitle.setText("Choose your network icon style — Karyl and Nishiki use custom rounded lettering");
         subtitle.setTextSize(15);
         subtitle.setTextColor(Color.LTGRAY);
         subtitle.setPadding(0, dp(10), 0, dp(18));
@@ -42,20 +42,14 @@ public final class SettingsActivity extends Activity {
         RadioGroup group = new RadioGroup(this);
         group.setOrientation(RadioGroup.VERTICAL);
         final String[] shapes = { ShapeProvider.SQUARE, ShapeProvider.FILLED,
-                ShapeProvider.WAVES, ShapeProvider.OPEN_CORNERS, ShapeProvider.SIDE_WAVES,
-                ShapeProvider.ITALIC, ShapeProvider.BOLD_ITALIC };
+                ShapeProvider.WAVES, ShapeProvider.OPEN_CORNERS,
+                ShapeProvider.KARYL, ShapeProvider.NISHIKI };
         final String[] names = { "Square", "Filled", "Waves", "Open Corners",
-                "Side Waves", "Italic", "Bold Italic" };
-        String current = getSharedPreferences(ShapeProvider.PREFS, 0)
+                "Karyl", "Nishiki" };
+        String saved = getSharedPreferences(ShapeProvider.PREFS, 0)
                 .getString("shape", ShapeProvider.SQUARE);
-        // Migrate the removed Circle choice so the picker always has a selection.
-        if (!ShapeProvider.SQUARE.equals(current) && !ShapeProvider.FILLED.equals(current)
-                && !ShapeProvider.ITALIC.equals(current)
-                && !ShapeProvider.BOLD_ITALIC.equals(current)
-                && !ShapeProvider.WAVES.equals(current)
-                && !ShapeProvider.OPEN_CORNERS.equals(current)
-                && !ShapeProvider.SIDE_WAVES.equals(current)) {
-            current = ShapeProvider.SQUARE;
+        String current = ShapeProvider.validShape(saved);
+        if (!current.equals(saved)) {
             getSharedPreferences(ShapeProvider.PREFS, 0).edit()
                     .putString("shape", current).apply();
         }

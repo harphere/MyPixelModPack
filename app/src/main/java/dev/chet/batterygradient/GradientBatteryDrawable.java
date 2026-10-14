@@ -31,7 +31,7 @@ public final class GradientBatteryDrawable extends Drawable {
     private final Runnable frame = new Runnable() {
         @Override public void run() {
             if (!shouldAnimate()) { stopAnimation(); return; }
-            phase = ((android.os.SystemClock.uptimeMillis() - animationStart) % 1800L) / 1800f;
+            phase = ((android.os.SystemClock.uptimeMillis() - animationStart) % 1400L) / 1400f;
             frameCount++;
             invalidateSelf();
             scheduleSelf(this, android.os.SystemClock.uptimeMillis() + 32);
@@ -192,7 +192,8 @@ public final class GradientBatteryDrawable extends Drawable {
 
     private void drawChargingPulse(Canvas canvas, RectF circle) {
         if (!animationEnabled || !activelyCharging || level <= 0 || level >= 100 || !isVisible()) return;
-        int alpha = Math.round(150 * (float)Math.sin(Math.PI * phase));
+        // Broad, high-contrast highlight remains visible throughout the cycle.
+        int alpha = Math.round(175 + 65 * (float)Math.sin(Math.PI * phase));
         if (alpha <= 0) return;
         paint.setShader(null); paint.setColor(Color.argb(alpha, 255, 255, 255));
         paint.setXfermode(new android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.SRC_ATOP));
@@ -201,7 +202,8 @@ public final class GradientBatteryDrawable extends Drawable {
             float radius = 9.5f * level / 100f;
             int save = canvas.save(); Path clip = new Path();
             clip.addCircle(12, 12, radius, Path.Direction.CW); canvas.clipPath(clip);
-            paint.setStrokeWidth(1.8f); canvas.drawCircle(12, 12, radius * phase, paint);
+            paint.setStrokeWidth(Math.max(2.8f, radius * .5f));
+            canvas.drawCircle(12, 12, radius * phase, paint);
             canvas.restoreToCount(save);
         } else if (SettingsProvider.PORTRAIT.equals(style)) {
             RectF body = new RectF(5.5f, 3.5f, 18.5f, 22f);
@@ -210,17 +212,28 @@ public final class GradientBatteryDrawable extends Drawable {
             float top = body.bottom - body.height() * level / 100f;
             canvas.clipRect(body.left, top, body.right, body.bottom);
             float y = body.bottom - (body.bottom - top) * phase;
-            paint.setStyle(Paint.Style.FILL); canvas.drawRect(body.left, y - 1.5f, body.right, y + 1.5f, paint);
+            float halfBand = Math.max(2.5f, (body.bottom - top) * .25f);
+            paint.setStyle(Paint.Style.FILL);
+            canvas.drawRect(body.left, y - halfBand, body.right, y + halfBand, paint);
             canvas.restoreToCount(save);
-        } else if (SettingsProvider.DASHED.equals(style)) {
-            paint.setStrokeWidth(2.9f); float sections = level * 24f / 100f;
-            int index = Math.min(23, (int)(phase * 24));
-            float fraction = Math.max(0, Math.min(1, sections - index));
-            if (fraction > 0) canvas.drawArc(circle, -90 + index * 15, fraction * 10.5f, false, paint);
         } else {
-            paint.setStrokeWidth(2.6f); float start = phase * 360;
-            float sweep = Math.min(35, level * 3.6f - start);
-            if (sweep > 0) canvas.drawArc(circle, -90 + start, sweep, false, paint);
+            // Chase the entire track: low charge must not hide the animation
+            // for most of the cycle. Base coloured arc still indicates level.
+            boolean dashed = SettingsProvider.DASHED.equals(style);
+            paint.setStrokeWidth(dashed ? 2.9f : 2.6f);
+            float head = phase * 360f;
+            if (dashed) {
+                for (int i = 0; i < 24; i++) {
+                    float distance = (head - i * 15f + 360f) % 360f;
+                    if (distance < 75f) {
+                        paint.setAlpha(Math.round(alpha * (1f - distance / 90f)));
+                        canvas.drawArc(circle, -90 + i * 15, 10.5f, false, paint);
+                    }
+                }
+            } else {
+                paint.setStrokeCap(Paint.Cap.ROUND);
+                canvas.drawArc(circle, -90 + head, 70f, false, paint);
+            }
         }
         paint.setAlpha(255); paint.setXfermode(null);
     }
