@@ -18,6 +18,8 @@ public class BatteryRenderingTest {
     }
     private Bitmap render(String style,int level,boolean percentage,boolean charging) {
         GradientBatteryDrawable d=new GradientBatteryDrawable();
+        // Static artwork tests isolate the bolt; ChargingAnimationTest covers pulses.
+        d.setAnimationEnabled(false);
         d.setShowPercentage(percentage);d.setCharging(charging);
         d.setStyle(style); d.setLevelPercent(level); d.setBounds(0,0,320,240);
         Bitmap b=Bitmap.createBitmap(320,240,Bitmap.Config.ARGB_8888);

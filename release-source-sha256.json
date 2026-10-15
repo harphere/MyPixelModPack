@@ -284,7 +284,7 @@
   "app/src/main/res/xml/menu_preferences.xml": "d6e97b92a98a6617eabc1ceae81fe5ff8e981b129efb20ab188048b2e8862a4a",
   "app/src/main/res/xml/preference_screen.xml": "3742a5c24dc94fc2deca2d421800d5a2c4ce703bdf971e050d59065401219299",
   "app/src/test/java/com/chet/navbarmatch/NavIconContrastTest.java": "00cd37c4652b1a9b72c06f5d3eb54540f429014534b05dcdb2eadc3c8fa854f7",
-  "app/src/test/java/dev/chet/batterygradient/BatteryRenderingTest.java": "2302fe4d36ef2d519f676b80440a5429b7371aa6e553ec27f748683f80a56613",
+  "app/src/test/java/dev/chet/batterygradient/BatteryRenderingTest.java": "2b9fcd05d90ee147d8e8f9d2543254bb035dce29d58963c8858acbeea8f32d19",
   "app/src/test/java/dev/chet/batterygradient/BatterySizingTest.java": "6b255a73f38233d95513a9c655ad002e51fb63e6083ff2b0ff2c991f665816ea",
   "app/src/test/java/dev/chet/batterygradient/BatterySizingUiTest.java": "b13f5941973a879f7331232fd152ec25384080274a20d991bf0418e029a2dfc7",
   "app/src/test/java/dev/chet/batterygradient/ChargingAnimationTest.java": "4f3b8932ef40189f3a64c701c2903ad013250861df16dd9fcbee0d667ba4faa2",
