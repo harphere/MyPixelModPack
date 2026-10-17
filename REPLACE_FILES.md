@@ -1,5 +1,3 @@
-# Update to 3.3.0
+# Update to 3.5.0
 
-Replace the complete repository source with this ZIP, including .github/workflows/build.yml, Gradle files, scripts and release-source-sha256.json. Run Build MyPixelModPack 3.3.0, install its APK as an update and reboot.
-
-Choose Karyl or Nishiki in Mobile data icon settings. Side Waves, Italic and Bold Italic have been removed. Saved selections of those styles fall back to Square. Signing key, scopes and other component settings are retained.
+Replace the complete repository source including .github, scripts, Gradle files and source lock. Run Build MyPixelModPack 3.5.0 in Actions; install its APK as an update. Enable SpeakerControl and add WhatsApp to the Pack scope, then reboot. In SpeakerControl select WhatsApp and test STATUS/TOGGLE during a voice call. Preserve existing Phone scopes. See docs/SPEAKERCONTROL_WHATSAPP.md for Tasker settings.

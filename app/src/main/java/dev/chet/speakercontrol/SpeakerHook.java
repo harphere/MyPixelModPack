@@ -22,6 +22,7 @@ public final class SpeakerHook implements IXposedHookLoadPackage {
     private static final AtomicBoolean REGISTERED = new AtomicBoolean();
     private static volatile InCallService service;
     public static boolean isPhoneHost(Context c, String pkg) {
+        if (WhatsAppSpeakerHook.isHost(pkg)) return true;
         try {
             android.telecom.TelecomManager tm = (android.telecom.TelecomManager)c.getSystemService(Context.TELECOM_SERVICE);
             if (tm != null && pkg.equals(tm.getDefaultDialerPackage())) return true;
@@ -34,6 +35,10 @@ public final class SpeakerHook implements IXposedHookLoadPackage {
     }
     @Override public void handleLoadPackage(XC_LoadPackage.LoadPackageParam p) {
         if ("android".equals(p.packageName) || Protocol.APP.equals(p.packageName)) return;
+        if (WhatsAppSpeakerHook.isHost(p.packageName)) {
+            WhatsAppSpeakerHook.install(dev.chet.mypixelmodpack.PackRuntime.hostContext());
+            return;
+        }
         try {
             XposedHelpers.findAndHookMethod(InCallService.class, "onBind", Intent.class, new XC_MethodHook() {
                 @Override protected void afterHookedMethod(MethodHookParam param) {
@@ -120,7 +125,7 @@ public final class SpeakerHook implements IXposedHookLoadPackage {
             default: return "unknown (" + route + ")";
         }
     }
-    private static void respond(Context c, String reply, String command, String request, boolean ok, boolean callActive, int route, String message) {
+    static void respond(Context c, String reply, String command, String request, boolean ok, boolean callActive, int route, String message) {
         c.sendBroadcast(new Intent(Protocol.PREFIX + "RESULT").setPackage(reply)
                 .putExtra("TOKEN",Protocol.TOKEN).putExtra("command",command).putExtra("request_id",request)
                 .putExtra("success",ok).putExtra("call_active",callActive).putExtra("route",route)

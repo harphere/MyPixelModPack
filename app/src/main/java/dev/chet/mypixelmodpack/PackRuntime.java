@@ -14,6 +14,7 @@ import de.robv.android.xposed.XposedBridge;
 public final class PackRuntime {
     private static Context context;
     private static boolean visibilityRetained;
+    private static boolean unavailableReported;
     private static String packageName, processName;
     private PackRuntime() {}
     static void attach(Context ctx, String pkg, String process) {
@@ -35,7 +36,17 @@ public final class PackRuntime {
         try { data = context.getContentResolver().call(PackSettingsProvider.URI, "snapshot", store, null); }
         catch (RuntimeException error) { throw new IllegalStateException("Settings provider unavailable for " + store, error); }
         if (data == null) throw new IllegalStateException("No settings snapshot for " + store);
+        unavailableReported = false;
         return new Snapshot(data);
+    }
+    /** A missing provider cannot store a diagnostic; avoid a second failing lookup. */
+    public static void reportSettingsUnavailable(Throwable error) {
+        if (unavailableReported) return;
+        unavailableReported = true;
+        XposedBridge.log("MyPixelModPack " + BuildConfig.VERSION_NAME + ": " + processName
+                + " / startup / SETTINGS UNAVAILABLE; no pack hooks installed: " + error
+                + "; open Pack > Refresh app access, then restart this app."
+                + " Access also refreshes automatically after boot/install/update.");
     }
     public static void report(String feature, String status) {
         XposedBridge.log("MyPixelModPack " + BuildConfig.VERSION_NAME + ": " + processName + " / " + feature + " / " + status);

@@ -35,8 +35,13 @@ public final class FramedTypeDrawable extends Drawable {
     @Override public void draw(Canvas canvas) {
         Rect b = getBounds();
         if (b.isEmpty()) return;
-        if (ShapeProvider.KARYL.equals(shape) || ShapeProvider.NISHIKI.equals(shape)) {
+        if (ShapeProvider.KARYL.equals(shape) || ShapeProvider.NISHIKI.equals(shape)
+                || ShapeProvider.HADAUN.equals(shape)) {
             drawRoundedBadge(canvas, b);
+            return;
+        }
+        if (ShapeProvider.WAVES.equals(shape)) {
+            drawWaves(canvas, b);
             return;
         }
         float width = b.width(), height = b.height();
@@ -47,17 +52,7 @@ public final class FramedTypeDrawable extends Drawable {
         paint.setColorFilter(filter);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(stroke);
-        if (ShapeProvider.WAVES.equals(shape)) {
-            // Two short radio waves above the upper-right edge of the glyph.
-            float right = b.right - inset;
-            float top = b.top + inset;
-            canvas.drawArc(right - height * .56f, top,
-                    right + height * .18f, top + height * .59f,
-                    205, 84, false, paint);
-            canvas.drawArc(right - height * .39f, top + height * .16f,
-                    right + height * .01f, top + height * .49f,
-                    205, 83, false, paint);
-        } else if (ShapeProvider.OPEN_CORNERS.equals(shape)) {
+        if (ShapeProvider.OPEN_CORNERS.equals(shape)) {
             float l = b.left + inset, t = b.top + inset;
             float r = b.right - inset, bottom = b.bottom - inset;
             float length = Math.min(width, height) * .23f;
@@ -107,8 +102,39 @@ public final class FramedTypeDrawable extends Drawable {
         }
     }
 
+    private void drawWaves(Canvas canvas, Rect b) {
+        float h = b.height();
+        paint.setColor(color); paint.setAlpha(alpha); paint.setColorFilter(filter);
+        paint.setStyle(Paint.Style.FILL); paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTextSize(h * .68f * fontPercent / 150f);
+        float availableWidth = b.width() - .45f * h;
+        float measured = paint.measureText(label);
+        if (measured > availableWidth) paint.setTextSize(paint.getTextSize() * availableWidth / measured);
+        Rect ink = new Rect(); paint.getTextBounds(label, 0, label.length(), ink);
+        if (ink.height() > .52f * h) {
+            paint.setTextSize(paint.getTextSize() * .52f * h / ink.height());
+            paint.getTextBounds(label, 0, label.length(), ink);
+        }
+        float baseline = b.bottom - .06f * h - ink.bottom;
+        float center = b.exactCenterX() - .10f * h;
+        canvas.drawText(label, center, baseline, paint);
+        // Approved Option C: two clockwise quarter-waves, raised clear of
+        // the glyph, tucked left toward its upper-right corner.
+        float x = center + paint.measureText(label) / 2f - .07f * h;
+        float y = baseline + ink.top - .30f * h;
+        android.graphics.Path waves = new android.graphics.Path();
+        waves.moveTo(x, y);
+        waves.quadTo(x + .25f * h, y, x + .25f * h, y + .25f * h);
+        waves.moveTo(x, y + .15f * h);
+        waves.quadTo(x + .10f * h, y + .15f * h, x + .10f * h, y + .25f * h);
+        paint.setStyle(Paint.Style.STROKE); paint.setStrokeWidth(.0575f * h);
+        paint.setStrokeCap(Paint.Cap.ROUND); canvas.drawPath(waves, paint);
+        paint.setStrokeCap(Paint.Cap.BUTT);
+    }
+
     private void drawRoundedBadge(Canvas canvas, Rect b) {
         boolean filled = ShapeProvider.NISHIKI.equals(shape);
+        boolean segmented = ShapeProvider.HADAUN.equals(shape);
         float h = b.height(), w = b.width();
         float inset = h * .065f;
         paint.setColor(color); paint.setColorFilter(filter);
@@ -116,8 +142,21 @@ public final class FramedTypeDrawable extends Drawable {
         paint.setStyle(filled ? Paint.Style.FILL : Paint.Style.STROKE);
         paint.setStrokeWidth(h * .085f);
         paint.setAlpha(Math.round(alpha * (filled ? .30f : .72f)));
-        canvas.drawRoundRect(b.left + inset, b.top + inset, b.right - inset,
-                b.bottom - inset, h * .23f, h * .23f, paint);
+        if (segmented) {
+            // H: four strong rounded brackets with tiny breaks in the frame.
+            paint.setAlpha(alpha); paint.setStrokeWidth(h * .10f);
+            float l=b.left+inset, t=b.top+inset, right=b.right-inset, bottom=b.bottom-inset;
+            float radius=h*.20f, gap=h*.085f, cx=b.exactCenterX(), cy=b.exactCenterY();
+            android.graphics.Path frame = new android.graphics.Path();
+            frame.moveTo(cx-gap,t); frame.lineTo(l+radius,t); frame.quadTo(l,t,l,t+radius); frame.lineTo(l,cy-gap);
+            frame.moveTo(l,cy+gap); frame.lineTo(l,bottom-radius); frame.quadTo(l,bottom,l+radius,bottom); frame.lineTo(cx-gap,bottom);
+            frame.moveTo(cx+gap,bottom); frame.lineTo(right-radius,bottom); frame.quadTo(right,bottom,right,bottom-radius); frame.lineTo(right,cy+gap);
+            frame.moveTo(right,cy-gap); frame.lineTo(right,t+radius); frame.quadTo(right,t,right-radius,t); frame.lineTo(cx+gap,t);
+            canvas.drawPath(frame,paint);
+        } else {
+            canvas.drawRoundRect(b.left + inset, b.top + inset, b.right - inset,
+                    b.bottom - inset, h * .23f, h * .23f, paint);
+        }
         paint.setAlpha(alpha);
         paint.setStyle(Paint.Style.STROKE);
         // Original glyph paths: no external font or artwork dependency.
@@ -128,7 +167,7 @@ public final class FramedTypeDrawable extends Drawable {
         canvas.translate(b.exactCenterX() - emWidth * scale / 2f,
                 b.exactCenterY() - 4.5f * scale);
         canvas.scale(scale, scale);
-        paint.setStrokeWidth(filled ? 2.15f : 1.65f);
+        paint.setStrokeWidth(filled ? 2.15f : segmented ? 1.9f : 1.65f);
         for (int i = 0; i < label.length(); i++) {
             android.graphics.Path path = roundedGlyph(label.charAt(i));
             canvas.drawPath(path, paint);
@@ -172,9 +211,14 @@ public final class FramedTypeDrawable extends Drawable {
         // Keep the intrinsic height at 16dp: SystemUI constrains the icon view's height.
         // Widen the artwork to let larger letters retain their requested text size.
         float inset = Math.max(.7f, 16f * .07f);
-        if (ShapeProvider.KARYL.equals(shape) || ShapeProvider.NISHIKI.equals(shape)) {
+        if (ShapeProvider.KARYL.equals(shape) || ShapeProvider.NISHIKI.equals(shape)
+                || ShapeProvider.HADAUN.equals(shape)) {
             // Widen as the selected letter size increases; keep the badge 16dp tall.
             return Math.round(Math.max(em, 6f + label.length() * 6.8f * fontPercent / 100f) * density);
+        }
+        if (ShapeProvider.WAVES.equals(shape)) {
+            paint.setTextSize(16f * .68f * fontPercent / 150f * density);
+            return Math.round(Math.max(em * density, paint.measureText(label) + 16f * .45f * density));
         }
         boolean unboxed = ShapeProvider.WAVES.equals(shape);
         paint.setTextSize((16f - (unboxed ? 2.5f : 3.5f) * inset)

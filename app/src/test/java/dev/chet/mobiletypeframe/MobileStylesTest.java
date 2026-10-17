@@ -12,6 +12,7 @@ public class MobileStylesTest {
             assertEquals(ShapeProvider.SQUARE,ShapeProvider.validShape(old));
         assertEquals("karyl",ShapeProvider.validShape("karyl"));
         assertEquals("nishiki",ShapeProvider.validShape("nishiki"));
+        assertEquals("hadaun",ShapeProvider.validShape("hadaun"));
     }
     Bitmap render(String label,String shape,int tint,int alpha) {
         FramedTypeDrawable d=new FramedTypeDrawable(label,1,shape,150);
@@ -20,7 +21,7 @@ public class MobileStylesTest {
         d.draw(new Canvas(b));return b;
     }
     @Test public void newBadgesRenderAllLabelsAndRespectAlphaAndTint() {
-        for(String shape:new String[]{"karyl","nishiki"}) for(String label:new String[]{"3G","4G","5G","LTE","4G+","LTE+","5G+"}) {
+        for(String shape:new String[]{"karyl","nishiki","hadaun"}) for(String label:new String[]{"3G","4G","5G","LTE","4G+","LTE+","5G+"}) {
             Bitmap b=render(label,shape,Color.RED,255);int pixels=0;
             for(int y=0;y<b.getHeight();y++)for(int x=0;x<b.getWidth();x++) {
                 int c=b.getPixel(x,y);if(Color.alpha(c)>0){pixels++;assertEquals(0,Color.green(c));assertEquals(0,Color.blue(c));}
@@ -31,8 +32,20 @@ public class MobileStylesTest {
         }
         assertFalse(render("5G","karyl",Color.WHITE,255).sameAs(render("5G","nishiki",Color.WHITE,255)));
     }
+    @Test public void wavesHaveVisibleInkAboveLetterLaneAtEverySize() {
+        for(int size:new int[]{100,125,150}) for(String label:new String[]{"4G","5G","LTE","5G+"}) {
+            var d=new FramedTypeDrawable(label,1,"waves",size);
+            d.setBounds(0,0,d.getIntrinsicWidth()*8,128);
+            Bitmap b=Bitmap.createBitmap(d.getBounds().width(),128,Bitmap.Config.ARGB_8888);
+            d.draw(new Canvas(b));int upper=0,lower=0;
+            for(int y=0;y<128;y++)for(int x=0;x<b.getWidth();x++) {
+                if(Color.alpha(b.getPixel(x,y))>0) {if(y<64)upper++;else lower++;}
+            }
+            assertTrue(label+size,upper>0);assertTrue(label+size,lower>0);
+        }
+    }
     @Test public void customLetterSizeWidensBadge() {
-        for(String shape:new String[]{"karyl","nishiki"}) {
+        for(String shape:new String[]{"karyl","nishiki","hadaun"}) {
             var normal=new FramedTypeDrawable("LTE+",1,shape,100);
             var large=new FramedTypeDrawable("LTE+",1,shape,150);
             assertTrue(large.getIntrinsicWidth()>normal.getIntrinsicWidth());

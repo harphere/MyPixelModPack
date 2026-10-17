@@ -18,13 +18,14 @@ public final class MainActivity extends Activity {
     private TextView status;
     private String dialer;
     private boolean registered;
+    private android.widget.Spinner target;
     private final Handler handler = new Handler(Looper.getMainLooper());
-    private final Runnable timeout = () -> status.setText("No dialer reply. Enable SpeakerControl in My Pixel Mod Pack for your default Phone app in LSPosed, reboot, open Phone and check SpeakerControl logs.");
+    private final Runnable timeout = () -> status.setText("No reply from selected call app. Check scope, restart that app, and start/answer a call. WhatsApp must enter communication audio before its receiver responds.");
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override public void onReceive(Context context, Intent intent) {
             if (!Protocol.TOKEN.equals(intent.getStringExtra(Protocol.KEY))) return;
             handler.removeCallbacks(timeout);
-            status.setText("Success: " + intent.getBooleanExtra("success", false) + "\n" + intent.getStringExtra("status"));
+            status.setText("App: " + intent.getStringExtra("backend_package") + "\nSuccess: " + intent.getBooleanExtra("success", false) + "\n" + intent.getStringExtra("status"));
         }
     };
     @Override public void onCreate(Bundle saved) {
@@ -36,6 +37,10 @@ public final class MainActivity extends Activity {
         TextView title = new TextView(this); title.setText("SpeakerControl • My Pixel Mod Pack"); title.setTextSize(26); layout.addView(title);
         TextView help = new TextView(this);
         help.setText("Phone calls only. Scope to your default Phone app in LSPosed."); layout.addView(help);
+        target = new android.widget.Spinner(this);
+        target.setAdapter(new android.widget.ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item,
+                new String[]{"Phone", "WhatsApp", "WhatsApp Business"}));
+        layout.addView(target);
         for (String command : new String[]{"ENABLE", "DISABLE", "TOGGLE", "STATUS"}) {
             Button button = new Button(this); button.setText(command); button.setOnClickListener(v -> send(command)); layout.addView(button);
         }
@@ -44,7 +49,7 @@ public final class MainActivity extends Activity {
         ScrollView scroll = new ScrollView(this); scroll.addView(layout); setContentView(scroll);
         TelecomManager tm = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
         dialer = tm == null ? null : tm.getDefaultDialerPackage();
-        help.setText("Default dialer: " + dialer + "\nEnable SpeakerControl in My Pixel Mod Pack in LSPosed for this Phone app, reboot, and start/answer a phone call before testing. ENABLE = speaker; DISABLE = earpiece.");
+        help.setText("Default dialer: " + dialer + "\nScope the Pack to the Phone app and WhatsApp (or WhatsApp Business). Enable SpeakerControl and reboot. Choose the call app below and start/answer a call before testing. ENABLE = speaker; DISABLE = earpiece. WhatsApp communication mode is used to detect call audio; video calls may not offer an earpiece route.");
     }
     @Override protected void onStart() {
         super.onStart();
@@ -57,10 +62,11 @@ public final class MainActivity extends Activity {
         super.onStop();
     }
     private void send(String command) {
-        if (dialer == null || dialer.isEmpty()) { status.setText("No default dialer detected."); return; }
-        status.setText("Waiting for dialer…");
+        String destination = target.getSelectedItemPosition()==1 ? "com.whatsapp" : target.getSelectedItemPosition()==2 ? "com.whatsapp.w4b" : dialer;
+        if (destination == null || destination.isEmpty()) { status.setText("No default dialer detected."); return; }
+        status.setText("Waiting for " + destination + "…");
         handler.removeCallbacks(timeout); handler.postDelayed(timeout, 5000);
-        sendBroadcast(new Intent(Protocol.PREFIX + command).setPackage(dialer)
+        sendBroadcast(new Intent(Protocol.PREFIX + command).setPackage(destination)
                 .putExtra(Protocol.KEY, Protocol.TOKEN));
     }
 }

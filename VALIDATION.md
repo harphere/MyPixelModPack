@@ -1,13 +1,5 @@
-# Validation — 3.3.0
+# Validation — 3.5.0
 
-October 14, 2026. Baseline: complete 3.2.1 source, including brighter charging animations. VersionCode 41.
+Baseline: complete 3.4.1, versionCode 44. Adds a WhatsApp communication-device backend and call-app selector. Retains the existing phone backend, actions, token, all other features and prior build-test fix.
 
-- Changed mobile provider, settings activity and drawable compiled successfully against an Android API jar using JDK 17.
-- Complete-source and dispatcher checks passed locally.
-- Added Android rendering tests for Karyl/Nishiki labels, tint, transparency and sizing, plus removed-style migration tests. These tests have NOT been run locally; the supplied Actions workflow runs the full Android unit suite, release build and lint and checks APK identity/signature.
-- Reference appearance is recreated with original rounded vector glyphs, not the original Weeabooify font/assets. Actual SystemUI sizing and tint need phone testing.
-- Existing mobile hooks retained; 3G resource replacement added if that resource exists on the ROM.
-
-## Build-test correction
-
-User Actions log: 62 tests ran, 61 passed; only chargingBoltOccupiesOnlyRightLane failed. The static render helper now disables animation so the bolt can be tested independently. ChargingAnimationTest remains unchanged. Full corrected suite has not been rerun locally; rerun Actions. No runtime code, version or signing changes.
+All SpeakerControl Java classes compile locally against Android and Xposed API jars (using the compiled PackRuntime API from the previous targeted compilation). Source structure, XML and release hash checks pass. Full Android tests, lint, release build and APK signature checks run in Actions and were not run locally. WhatsApp call detection/routing, headset transitions and call-end cleanup require physical-device testing. See docs/SPEAKERCONTROL_WHATSAPP.md for limitations and diagnostics.

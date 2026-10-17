@@ -14,6 +14,7 @@ public final class ShapeProvider extends ContentProvider {
     public static final String OPEN_CORNERS = "open_corners";
     public static final String KARYL = "karyl";
     public static final String NISHIKI = "nishiki";
+    public static final String HADAUN = "hadaun";
     static final String PREFS = "mobile_type_frame";
     static final int DEFAULT_FONT_PERCENT = 150;
 
@@ -25,6 +26,7 @@ public final class ShapeProvider extends ContentProvider {
     static String validShape(String shape) {
         return SQUARE.equals(shape) || FILLED.equals(shape) || WAVES.equals(shape)
                 || OPEN_CORNERS.equals(shape) || KARYL.equals(shape) || NISHIKI.equals(shape)
+                || HADAUN.equals(shape)
                 ? shape : SQUARE;
     }
 

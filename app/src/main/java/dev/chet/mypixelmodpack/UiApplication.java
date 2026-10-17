@@ -14,6 +14,7 @@ import android.widget.TextView;
 public final class UiApplication extends Application {
     @Override public void onCreate() {
         super.onCreate();
+        AccessRefresh.start(this, null);
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             public void onActivityCreated(Activity a, Bundle b) {}
             public void onActivityResumed(Activity a) {

@@ -107,7 +107,7 @@ public final class HomeActivity extends Activity {
     }
     private String description(String key) {
         switch(key) {
-            case "speaker": return "Phone calls only. Scope: default Phone app and its InCall UI. Existing Tasker actions and TOKEN remain supported.";
+            case "speaker": return "Phone and WhatsApp calls. Scope: default Phone app/InCall UI plus WhatsApp. Choose the target in SpeakerControl; existing Tasker actions and TOKEN remain supported.";
             case "pie": return "ChromePie menu with status-bar colour matching. Scope: Titanium or supported Chromium browser. Configure the menu here; restart the browser after changes.";
             case "battery": return "Gradient battery styles and placement. Scope: System UI.";
             case "cursor": return "Tap arrows to move one character; hold to repeat. Scope: Gboard and Launcher3. After enabling, force stop Gboard and reopen a text field; restart Launcher3 or reboot.";
@@ -122,7 +122,7 @@ public final class HomeActivity extends Activity {
     }
     private void help() {
         new AlertDialog.Builder(this).setTitle("Scope & restart help")
-            .setMessage("System UI: battery, mobile and service icons, network activity, Double Tap to Wake.\n\nLauncher3: navigation icons, OPA and Gboard arrows. Nova is your home app; Launcher3 hosts the navigation row.\n\nGboard: cursor arrows. Force stop Gboard and reopen it after enabling or updating the pack if arrows are missing.\n\nNav Bar Status Match: each target app.\n\nSpeakerControl: default Phone app and InCall UI. Phone calls only.\n\nChromePie: Titanium or supported Chromium browser. Disable the standalone ChromePie Status Match module.\n\nSettings: optional pack shortcut.\n\nSystem Framework is unnecessary. Reboot applies all feature changes. Keep matching standalone modules disabled.")
+            .setMessage("System UI: battery, mobile and service icons, network activity, Double Tap to Wake.\n\nLauncher3: navigation icons, OPA and Gboard arrows. Nova is your home app; Launcher3 hosts the navigation row.\n\nGboard: cursor arrows. Force stop Gboard and reopen it after enabling or updating the pack if arrows are missing.\n\nNav Bar Status Match: each target app.\n\nSpeakerControl: default Phone app/InCall UI, plus WhatsApp or WhatsApp Business if used.\n\nChromePie: Titanium or supported Chromium browser. Disable the standalone ChromePie Status Match module.\n\nSettings: optional pack shortcut.\n\nSystem Framework is unnecessary. Reboot applies all feature changes. Keep matching standalone modules disabled.")
             .setPositiveButton("Got it",null).show();
     }
     private void refreshAccess() {
@@ -137,7 +137,7 @@ public final class HomeActivity extends Activity {
     }
     private void diagnostics() {
         StringBuilder text=new StringBuilder("My Pixel Mod Pack "+BuildConfig.VERSION_NAME+"\nSaved switches (restart required):\n");
-        text.append("versionCode=").append(BuildConfig.VERSION_CODE).append("; build_id=pack-3.3.0-r1\n");
+        text.append("versionCode=").append(BuildConfig.VERSION_CODE).append("; build_id=pack-3.5.0-r1\n");
         for(String[] f:FEATURES) text.append(f[0]).append('=').append(prefs.getBoolean(f[0],false)).append('\n');
         android.os.Bundle batteryOptions=dev.chet.batterygradient.SettingsProvider.getDisplayOptions(this);
         text.append("\nBattery settings: style=").append(batteryOptions.getString("style"))
@@ -150,6 +150,7 @@ public final class HomeActivity extends Activity {
         text.append("\nNav Bar Match settings:\nmodule_enabled=").append(matchPrefs.getBoolean("enabled",true));
         text.append("\nblacklist=").append(matchPrefs.getStringSet("blacklist",java.util.Collections.emptySet()));
         text.append("\n\nApp access refresh:\n").append(getSharedPreferences("access_diagnostics_v2",MODE_PRIVATE).getString("result","Not run yet")).append('\n');
+        text.append("Last app install/update refresh: ").append(getSharedPreferences("access_diagnostics_v2",MODE_PRIVATE).getString("package_result","None recorded")).append('\n');
         text.append("settings_entry=").append(prefs.getBoolean("settings_entry",false)).append("\n\nLatest process reports (last reported, not live):\n");
         Map<String,?> reports=new TreeMap<>(getSharedPreferences("diagnostics_v2",0).getAll());
         if(reports.isEmpty()) text.append("No process reports yet. Confirm scope and restart the relevant processes.\n");

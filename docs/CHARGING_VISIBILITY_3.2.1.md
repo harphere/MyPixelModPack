@@ -1,4 +1,4 @@
-# Charging visibility update 3.3.0
+# Charging visibility update 3.5.0
 
 - 1.4-second cycle instead of 1.8 seconds.
 - Wider, brighter outward pulse for filled circles.

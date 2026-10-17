@@ -1,10 +1,10 @@
-# My Pixel Mod Pack 3.3.0
+# My Pixel Mod Pack 3.5.0
 
-Adds Karyl-inspired outlined and Nishiki-inspired softly filled network badges with original rounded vector lettering. Removes Side Waves, Italic and Bold Italic; saved removed styles migrate to Square. Includes all 3.2.1 features and brighter charging animations. VersionCode 41; package/signing key unchanged.
+Adds WhatsApp/WhatsApp Business targets to SpeakerControl with communication-device routing and verified results. Existing phone controls and Tasker protocol remain. See docs/SPEAKERCONTROL_WHATSAPP.md for scope, setup and testing limits. Includes all 3.4.1 fixes and icon/charging updates. VersionCode 44.
 
 ## Build and update
 
-See REPLACE_FILES.md for the exact changed files. Upload the complete ZIP contents to the repository root, including the supplied workflow, Gradle files and release-source-sha256.json. Run **Build MyPixelModPack 3.3.0**, download its artifact, install **MyPixelModPack-3.3.0.apk** as an update and reboot. Confirm Version 3.3.0 on the home page. Settings and existing scopes are preserved. No System Framework scope is required.
+See REPLACE_FILES.md for the exact changed files. Upload the complete ZIP contents to the repository root, including the supplied workflow, Gradle files and release-source-sha256.json. Run **Build MyPixelModPack 3.5.0**, download its artifact, install **MyPixelModPack-3.5.0.apk** as an update and reboot. Confirm Version 3.5.0 on the home page. Settings and existing scopes are preserved. No System Framework scope is required.
 
 ## Battery controls
 

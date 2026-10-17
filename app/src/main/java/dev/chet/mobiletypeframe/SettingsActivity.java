@@ -28,7 +28,7 @@ public final class SettingsActivity extends Activity {
         page.addView(title);
 
         TextView subtitle = new TextView(this);
-        subtitle.setText("Choose your network icon style — Karyl and Nishiki use custom rounded lettering");
+        subtitle.setText("Choose your network icon style — K, N and H use custom rounded lettering");
         subtitle.setTextSize(15);
         subtitle.setTextColor(Color.LTGRAY);
         subtitle.setPadding(0, dp(10), 0, dp(18));
@@ -43,9 +43,9 @@ public final class SettingsActivity extends Activity {
         group.setOrientation(RadioGroup.VERTICAL);
         final String[] shapes = { ShapeProvider.SQUARE, ShapeProvider.FILLED,
                 ShapeProvider.WAVES, ShapeProvider.OPEN_CORNERS,
-                ShapeProvider.KARYL, ShapeProvider.NISHIKI };
+                ShapeProvider.KARYL, ShapeProvider.NISHIKI, ShapeProvider.HADAUN };
         final String[] names = { "Square", "Filled", "Waves", "Open Corners",
-                "Karyl", "Nishiki" };
+                "K", "N", "H" };
         String saved = getSharedPreferences(ShapeProvider.PREFS, 0)
                 .getString("shape", ShapeProvider.SQUARE);
         String current = ShapeProvider.validShape(saved);

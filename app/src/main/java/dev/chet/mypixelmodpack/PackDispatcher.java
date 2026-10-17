@@ -91,7 +91,7 @@ public final class PackDispatcher implements IXposedHookLoadPackage, IXposedHook
         final SharedPreferences switches;
         try { switches = PackRuntime.preferences("features_v2"); }
         catch (Throwable error) {
-            PackRuntime.report("startup", "SETTINGS UNAVAILABLE; no pack hooks installed: " + error);
+            PackRuntime.reportSettingsUnavailable(error);
             return false;
         }
         PackRuntime.report("startup", "settings snapshot read; context ready");
