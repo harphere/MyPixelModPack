@@ -293,7 +293,7 @@
   "app/src/test/java/dev/chet/mypixelmodpack/CombinedSettingsTest.java": "3a399cbdc7bb43fbb75d27d38cf9ba10964236c0d39033b5929196b8d0dffbcc",
   "app/src/test/java/dev/chet/mypixelmodpack/FeatureInstallationTest.java": "7c6cb06fe4766e20a54c1404abce87cd5b6d6fbab77200b9bb5cc045b701f60d",
   "app/src/test/java/dev/chet/mypixelmodpack/FeatureUiTest.java": "7d110e20fdd855e61c36bc31d1fb5c8be20d186facc01f1927b654cde5545564",
-  "app/src/test/java/dev/chet/mypixelmodpack/HomeActivityTest.java": "4c3a07ec351acb066d3cc6dc0897342941348ed763157d97eaeaa76d04f8b702",
+  "app/src/test/java/dev/chet/mypixelmodpack/HomeActivityTest.java": "fe5e8a5b3d907fddd6bc103f345ed27be7c5180f1c9d3cdae747a89d11f7825e",
   "app/src/test/java/dev/chet/mypixelmodpack/NavMatchSettingsUiTest.java": "696206dc1d7f4156325e07a0ae004d5da4d717c2f2ea2549d657912627d5c97f",
   "app/src/test/java/dev/chet/mypixelmodpack/PackSettingsTest.java": "e47bb0047593f647afe1003bcb3123979b9adba08ef69a1309480c67860d337a",
   "app/src/test/java/dev/chet/mypixelmodpack/ProcessStartupTest.java": "ef002af7286b0d18b894970d4d193c2d32bcd82e97bae8cc6df4e850921a0a7a",

@@ -49,12 +49,18 @@ public class HomeActivityTest {
             assertTrue(p.getBoolean("settings_entry",false)); assertTrue(p.getBoolean("wake",false));
         }
     }
-    @Test public void copiedDiagnosticsKeepProviderAccessAndMatchConfiguration() {
+    @Test public void copiedDiagnosticsKeepProviderAccessAndMatchConfiguration() throws Exception {
         Context c=RuntimeEnvironment.getApplication();
         c.getSharedPreferences("nav_match_v2",0).edit().putBoolean("enabled",false).putStringSet("blacklist",java.util.Set.of("excluded.app")).commit();
-        c.getSharedPreferences("access_diagnostics_v2",0).edit().putString("result","App access refreshed: 12 grants; 0 failures.").commit();
         Intent intent=new Intent(c,HomeActivity.class).putExtra("section","App & diagnostics");
         try(var controller=Robolectric.buildActivity(HomeActivity.class,intent).setup()) {
+            // Application startup refresh is asynchronous. Seed the report only after
+            // it has finished, so this clipboard test doesn't race a real refresh.
+            long deadline=System.nanoTime()+java.util.concurrent.TimeUnit.SECONDS.toNanos(5);
+            while(AccessRefresh.isRunning() && System.nanoTime()<deadline) Thread.sleep(10);
+            assertFalse("Startup access refresh did not finish",AccessRefresh.isRunning());
+            c.getSharedPreferences("access_diagnostics_v2",0).edit()
+                .putString("result","App access refreshed: 12 grants; 0 failures.").commit();
             android.widget.TextView title=findLabel(controller.get().findViewById(android.R.id.content),"Startup diagnostics");
             assertNotNull(title); ((View)title.getParent()).performClick();
             var dialog=org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();

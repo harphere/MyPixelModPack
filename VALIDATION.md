@@ -7,3 +7,7 @@ All SpeakerControl Java classes, PackUi, CategoryIconView, HomeActivity and batt
 
 ## Limits
 WhatsApp detection/routing remains device-test dependent. Auto chooses one positive active backend from replies received during a one-second window, not an OS-wide authoritative inventory of calls. Full dynamic receiver/manifest delivery, Tasker operation, UI appearance and call routing require phone testing. No fabricated Update or download feature was added to the new navigation bar.
+
+## 3.6.0 buildfix
+
+User Actions run: 67 tests completed, one failure at HomeActivityTest.java:66. The automatic Application startup refresh can overwrite the diagnostics fixture before it is copied. The clipboard test now waits (bounded to five seconds) for the worker to finish, then seeds its expected value. All content assertions remain. No runtime or version changes. Source integrity checks pass locally; the corrected Android suite still needs an Actions run.
