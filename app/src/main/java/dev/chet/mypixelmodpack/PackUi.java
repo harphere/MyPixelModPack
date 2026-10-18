@@ -16,10 +16,10 @@ public final class PackUi {
     private PackUi() {}
     public static int dp(Context c, int v) { return Math.round(v * c.getResources().getDisplayMetrics().density); }
     public static boolean dark(Context c) { return (c.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES; }
-    public static int background(Context c) { return dark(c) ? 0xff111318 : 0xfff7f9fc; }
-    public static int surface(Context c) { return dark(c) ? 0xff20242b : 0xffffffff; }
-    public static int text(Context c) { return dark(c) ? 0xffe3e7ee : 0xff19212c; }
-    public static int muted(Context c) { return dark(c) ? 0xffb7c0cd : 0xff546170; }
+    public static int background(Context c) { return dark(c) ? 0xff101014 : 0xfff7f9fc; }
+    public static int surface(Context c) { return dark(c) ? 0xff1c1b21 : 0xffffffff; }
+    public static int text(Context c) { return dark(c) ? 0xffeeeaf3 : 0xff19212c; }
+    public static int muted(Context c) { return dark(c) ? 0xffbcb7c4 : 0xff546170; }
     public static int accent(Context c) {
         return c.getColor(dark(c) ? android.R.color.system_accent1_200 : android.R.color.system_accent1_600);
     }

@@ -1,10 +1,10 @@
-# My Pixel Mod Pack 3.5.0
+# My Pixel Mod Pack 3.6.0
 
-Adds WhatsApp/WhatsApp Business targets to SpeakerControl with communication-device routing and verified results. Existing phone controls and Tasker protocol remain. See docs/SPEAKERCONTROL_WHATSAPP.md for scope, setup and testing limits. Includes all 3.4.1 fixes and icon/charging updates. VersionCode 44.
+Adds Auto SpeakerControl and a PixelXpert-inspired category UI with rounded rows, pastel icon circles, search, refresh and navigation to diagnostics/settings. Retains all components, icon and charging changes, provider fixes, signing key and existing switches. VersionCode 45. Auto Tasker instructions: docs/SPEAKERCONTROL_AUTO.md.
 
 ## Build and update
 
-See REPLACE_FILES.md for the exact changed files. Upload the complete ZIP contents to the repository root, including the supplied workflow, Gradle files and release-source-sha256.json. Run **Build MyPixelModPack 3.5.0**, download its artifact, install **MyPixelModPack-3.5.0.apk** as an update and reboot. Confirm Version 3.5.0 on the home page. Settings and existing scopes are preserved. No System Framework scope is required.
+See REPLACE_FILES.md for the exact changed files. Upload the complete ZIP contents to the repository root, including the supplied workflow, Gradle files and release-source-sha256.json. Run **Build MyPixelModPack 3.6.0**, download its artifact, install **MyPixelModPack-3.6.0.apk** as an update and reboot. Confirm Version 3.6.0 on the home page. Settings and existing scopes are preserved. No System Framework scope is required.
 
 ## Battery controls
 

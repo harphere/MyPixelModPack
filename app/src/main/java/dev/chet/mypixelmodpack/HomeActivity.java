@@ -53,14 +53,44 @@ public final class HomeActivity extends Activity {
         page=PackUi.column(this); int pad=PackUi.dp(this,20); page.setPadding(pad,pad,pad,pad);
         scroll.addView(page); root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1)); setContentView(root);
         if(section==null) {
-            TextView title=PackUi.label(this,"My Pixel\nMod Pack",34,true); title.setPadding(0,pad,0,pad); page.addView(title);
-            note(page,"Version "+BuildConfig.VERSION_NAME+" • Your Pixel, your style");
+            LinearLayout toolbar=new LinearLayout(this); toolbar.setGravity(Gravity.CENTER_VERTICAL);
+            TextView title=PackUi.label(this,"My Pixel Mod Pack",26,false);
+            toolbar.addView(title,new LinearLayout.LayoutParams(0,PackUi.dp(this,72),1)); title.setGravity(Gravity.CENTER_VERTICAL);
+            TextView refresh=PackUi.label(this,"↻",30,false);refresh.setGravity(Gravity.CENTER);refresh.setContentDescription("Refresh app access");
+            toolbar.addView(refresh,new LinearLayout.LayoutParams(PackUi.dp(this,48),PackUi.dp(this,56)));PackUi.clickable(refresh);refresh.setOnClickListener(v->refreshAccess());
+            TextView menu=PackUi.label(this,"⋮",28,false);menu.setGravity(Gravity.CENTER);menu.setContentDescription("More options");
+            toolbar.addView(menu,new LinearLayout.LayoutParams(PackUi.dp(this,40),PackUi.dp(this,56)));PackUi.clickable(menu);
+            menu.setOnClickListener(v->{ android.widget.PopupMenu popup=new android.widget.PopupMenu(this,menu);
+                popup.getMenu().add("Startup diagnostics").setOnMenuItemClickListener(item->{diagnostics();return true;});
+                popup.getMenu().add("Scope & restart help").setOnMenuItemClickListener(item->{help();return true;});popup.show(); });
+            page.addView(toolbar);
+            note(page,"Version "+BuildConfig.VERSION_NAME);
+            android.widget.EditText search=new android.widget.EditText(this);search.setSingleLine(true);search.setHint("Search features…");search.setTextSize(17);
+            search.setTextColor(PackUi.text(this));search.setHintTextColor(PackUi.muted(this));search.setContentDescription("Search Pack features");
+            android.graphics.drawable.GradientDrawable searchBackground=new android.graphics.drawable.GradientDrawable();
+            searchBackground.setColor(PackUi.background(this));searchBackground.setCornerRadius(PackUi.dp(this,32));searchBackground.setStroke(PackUi.dp(this,1),PackUi.muted(this));
+            search.setBackground(searchBackground);search.setPadding(PackUi.dp(this,22),0,PackUi.dp(this,22),0);
+            LinearLayout.LayoutParams searchParams=new LinearLayout.LayoutParams(-1,PackUi.dp(this,56));searchParams.bottomMargin=PackUi.dp(this,22);page.addView(search,searchParams);
+            search.addTextChangedListener(new android.text.TextWatcher(){
+                public void beforeTextChanged(CharSequence s,int start,int count,int after){}
+                public void onTextChanged(CharSequence s,int start,int before,int count){String q=s.toString().trim().toLowerCase(java.util.Locale.ROOT);
+                    for(int j=0;j<page.getChildCount();j++){View child=page.getChildAt(j);Object tag=child.getTag();
+                        if(tag instanceof String && ((String)tag).startsWith("category:"))child.setVisibility(((String)tag).contains(q)?View.VISIBLE:View.GONE);}}
+                public void afterTextChanged(android.text.Editable text){}
+            });
             navigation("Status bar","Battery, mobile icons and network activity",new int[]{0,2,3,7});
             navigation("Navigation","Icons, OPA animation, cursor arrows and colours",new int[]{1,4,5,6});
             navigation("Calls & browser","Speakerphone commands and ChromePie",new int[]{9,10});
             navigation("Screen & wake","Double Tap to Wake",new int[]{8});
             navigation("App & diagnostics","Settings shortcut, process reports and scope help",null);
             note(page,"Feature changes require a restart. Keep matching standalone modules disabled.");
+            LinearLayout tabs=new LinearLayout(this); tabs.setPadding(pad,0,pad,0);tabs.setBackgroundColor(PackUi.surface(this));
+            String[] tabNames={"Home","Diagnostics","Settings"};
+            for(int i=0;i<3;i++){final int tab=i;TextView item=PackUi.label(this,tabNames[i],14,i==0);item.setGravity(Gravity.CENTER);
+                tabs.addView(item,new LinearLayout.LayoutParams(0,PackUi.dp(this,64),1));PackUi.clickable(item);
+                item.setOnClickListener(v->{if(tab==0)scroll.smoothScrollTo(0,0);else if(tab==1)diagnostics();else startActivity(new Intent(this,HomeActivity.class).putExtra("section","App & diagnostics"));});}
+            root.addView(tabs);
+
         } else if("App & diagnostics".equals(section)) {
             LinearLayout c=PackUi.card(this);
             toggle(c,"settings_entry","Show in Android Settings","Add My Pixel Mod Pack to the Settings home page.");
@@ -77,7 +107,17 @@ public final class HomeActivity extends Activity {
     private void navigation(String name,String summary,int[] indices) {
         String status="";
         if(indices != null) { int on=0; for(int i:indices) if(prefs.getBoolean(FEATURES[i][0],false)) on++; status=" • "+on+" enabled"; }
-        action(name,summary+status,() -> startActivity(new Intent(this,HomeActivity.class).putExtra("section",name)));
+        LinearLayout card=PackUi.card(this);card.setOrientation(LinearLayout.HORIZONTAL);card.setGravity(Gravity.CENTER_VERTICAL);
+        int category="Status bar".equals(name)?0:"Navigation".equals(name)?1:"Calls & browser".equals(name)?2:"Screen & wake".equals(name)?3:4;
+        CategoryIconView icon=new CategoryIconView(this,category);icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        LinearLayout.LayoutParams iconParams=new LinearLayout.LayoutParams(PackUi.dp(this,44),PackUi.dp(this,44));iconParams.rightMargin=PackUi.dp(this,16);card.addView(icon,iconParams);
+        LinearLayout labels=PackUi.column(this);labels.addView(PackUi.label(this,name,19,true));
+        TextView detail=PackUi.label(this,summary+status,14,false);detail.setTextColor(PackUi.muted(this));detail.setPadding(0,PackUi.dp(this,6),0,0);labels.addView(detail);
+        card.addView(labels,new LinearLayout.LayoutParams(0,-2,1));
+        String keywords=name+" "+summary;
+        if(indices!=null)for(int i:indices)keywords+=" "+FEATURES[i][1]+" "+description(FEATURES[i][0]);
+        card.setTag("category:"+keywords.toLowerCase(java.util.Locale.ROOT));PackUi.clickable(card);
+        card.setOnClickListener(v->startActivity(new Intent(this,HomeActivity.class).putExtra("section",name)));page.addView(card);
     }
     private void feature(int i) {
         String[] f=FEATURES[i]; LinearLayout c=PackUi.card(this);
@@ -137,7 +177,7 @@ public final class HomeActivity extends Activity {
     }
     private void diagnostics() {
         StringBuilder text=new StringBuilder("My Pixel Mod Pack "+BuildConfig.VERSION_NAME+"\nSaved switches (restart required):\n");
-        text.append("versionCode=").append(BuildConfig.VERSION_CODE).append("; build_id=pack-3.5.0-r1\n");
+        text.append("versionCode=").append(BuildConfig.VERSION_CODE).append("; build_id=pack-3.6.0-r1\n");
         for(String[] f:FEATURES) text.append(f[0]).append('=').append(prefs.getBoolean(f[0],false)).append('\n');
         android.os.Bundle batteryOptions=dev.chet.batterygradient.SettingsProvider.getDisplayOptions(this);
         text.append("\nBattery settings: style=").append(batteryOptions.getString("style"))

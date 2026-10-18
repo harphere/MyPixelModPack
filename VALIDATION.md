@@ -1,5 +1,9 @@
-# Validation — 3.5.0
+# Validation — 3.6.0
 
-Baseline: complete 3.4.1, versionCode 44. Adds a WhatsApp communication-device backend and call-app selector. Retains the existing phone backend, actions, token, all other features and prior build-test fix.
+Baseline: complete 3.5.0; versionCode 45. Adds Auto SpeakerControl routing and refreshes the home UI with a reference-inspired dark palette, pastel vector category icons, rounded rows, functional feature search, refresh/overflow controls, and Home/Diagnostics/Settings navigation. Light theme remains available through the system setting. Existing feature pages, switches and appearance settings are retained.
 
-All SpeakerControl Java classes compile locally against Android and Xposed API jars (using the compiled PackRuntime API from the previous targeted compilation). Source structure, XML and release hash checks pass. Full Android tests, lint, release build and APK signature checks run in Actions and were not run locally. WhatsApp call detection/routing, headset transitions and call-end cleanup require physical-device testing. See docs/SPEAKERCONTROL_WHATSAPP.md for limitations and diagnostics.
+## Local checks
+All SpeakerControl Java classes, PackUi, CategoryIconView, HomeActivity and battery SettingsProvider compiled against Android/Xposed API jars, using generated BuildConfig/provider API stubs as needed. Complete-source, component and XML checks pass. Added Android tests for one-target dispatch, duplicate/stale status reports, ambiguity, missing responses and invalid-token/unknown-package reports. These tests and the full Android suite, release compilation, lint and native UI preview renders were NOT run locally; the included Actions workflow runs the Android checks. This is not an on-device compatibility claim.
+
+## Limits
+WhatsApp detection/routing remains device-test dependent. Auto chooses one positive active backend from replies received during a one-second window, not an OS-wide authoritative inventory of calls. Full dynamic receiver/manifest delivery, Tasker operation, UI appearance and call routing require phone testing. No fabricated Update or download feature was added to the new navigation bar.

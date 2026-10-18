@@ -14,6 +14,9 @@
 <activity android:name="com.chet.networkactivity.SettingsActivity" android:exported="false"/>
 <activity android:name="dev.chet.speakercontrol.MainActivity" android:exported="false"/>
 <activity android:name="dev.chet.chromepiestatusmatch.settings.PieSettings" android:exported="false" android:theme="@style/CpAppTheme"/>
+<receiver android:name="dev.chet.speakercontrol.AutoSpeakerReceiver" android:exported="true">
+<intent-filter><action android:name="dev.chet.speakercontrol.ENABLE"/><action android:name="dev.chet.speakercontrol.DISABLE"/><action android:name="dev.chet.speakercontrol.TOGGLE"/><action android:name="dev.chet.speakercontrol.STATUS"/></intent-filter>
+</receiver>
 <receiver android:name="dev.chet.mypixelmodpack.AccessRefreshReceiver" android:exported="false">
 <intent-filter><action android:name="android.intent.action.BOOT_COMPLETED"/><action android:name="android.intent.action.MY_PACKAGE_REPLACED"/></intent-filter>
 <intent-filter><action android:name="android.intent.action.PACKAGE_ADDED"/><action android:name="android.intent.action.PACKAGE_REPLACED"/><data android:scheme="package"/></intent-filter>
