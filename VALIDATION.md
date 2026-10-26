@@ -1,5 +1,5 @@
-# 3.8.0 validation
+# 3.8.1 validation
 
-Local validation: ten pure-Java gesture assertions passed (tap, drag cancellation, returning after drag, multi-touch, long press, explicit cancellation, fresh gesture and invalid timestamp). source integrity, manifest/XML checks, and Java compilation of changed runtime classes against Android/Xposed APIs. Full Android unit tests, lint and APK packaging run in the included GitHub Actions workflow. No physical-device testing is claimed.
+Local: targeted Java compilation of notification hook and targeting helper against Android/Xposed APIs; pure-Java gesture and targeting checks; source hashes, manifest and XML checks; ZIP integrity and all locked file digests. Full Gradle tests/lint/APK build run in GitHub Actions. No device validation claimed.
 
-Device checks: enable Tap notification icons, reboot, test each app separately and with all three present. Each tap should open exactly one app; swipe down, long press and unsupported icons should retain normal behaviour. Check locked-screen behaviour. Inspect Waves at each font size and LTE/4G/5G labels for clipping. Existing battery tap is independently configured under Battery gradient → Customize.
+Retest AquaMail's top status-bar icon after reboot with shade closed. Check above/below artwork, three adjacent apps, taps over unsupported icons, swipes, long press, lock screen. If it fails, copy Pack diagnostics immediately: notification_tap and notification_tap_last identify installation and last tap stage. Previous larger Waves artwork and all existing modules retained.

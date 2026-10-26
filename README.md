@@ -1,3 +1,7 @@
+# My Pixel Mod Pack 3.8.1
+
+Notification-icon tap correction: full-height touch targets, actual ROM dispatch hook, launch fallback and tap diagnostics. See docs/NOTIFICATION_TAPS_3.8.1.md.
+
 # My Pixel Mod Pack 3.8.0
 
 Larger Waves artwork and optional AquaMail/YAATA/Phone notification icon taps. See docs/NOTIFICATION_TAPS_3.8.0.md.

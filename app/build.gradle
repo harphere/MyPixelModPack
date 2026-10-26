@@ -3,7 +3,7 @@ android {
  namespace 'dev.chet.mypixelmodpack'
  buildFeatures { buildConfig true }
  compileSdk 36
- defaultConfig { applicationId 'dev.chet.mypixelmodpack'; minSdk 35; targetSdk 28; versionCode 48; versionName '3.8.0' }
+ defaultConfig { applicationId 'dev.chet.mypixelmodpack'; minSdk 35; targetSdk 28; versionCode 49; versionName '3.8.1' }
  signingConfigs { pack { storeFile file('pack-development.jks'); storePassword 'android'; keyAlias 'pack'; keyPassword 'android' } }
  buildTypes { release { minifyEnabled false; signingConfig signingConfigs.pack } }
  lint { disable 'ExpiredTargetSdkVersion' }
