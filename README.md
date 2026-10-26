@@ -1,3 +1,7 @@
+# My Pixel Mod Pack 3.8.0
+
+Larger Waves artwork and optional AquaMail/YAATA/Phone notification icon taps. See docs/NOTIFICATION_TAPS_3.8.0.md.
+
 # My Pixel Mod Pack 3.7.0
 
 Adds an optional status-bar battery tap shortcut to Battery settings. Standard mobile badges and Waves now share the H/K vector lettering and sizing; Waves scales with the glyphs. Includes all 3.6.1 features and DT2W changes. VersionCode 47. See docs/BATTERY_SHORTCUT_AND_MOBILE_3.7.0.md.

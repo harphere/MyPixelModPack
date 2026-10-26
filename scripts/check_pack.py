@@ -10,12 +10,12 @@ import hashlib, json
 lock = json.loads((root / 'release-source-sha256.json').read_text())
 for name, digest in lock.items():
     file = root / name
-    assert file.is_file() and hashlib.sha256(file.read_bytes()).hexdigest() == digest, f'Mixed/incomplete 3.7.0 source: {name}; replace with the complete ZIP'
+    assert file.is_file() and hashlib.sha256(file.read_bytes()).hexdigest() == digest, f'Mixed/incomplete 3.8.0 source: {name}; replace with the complete ZIP'
 locked_main = {name for name in lock if name.startswith('app/src/main/')}
 actual_main = {str(file.relative_to(root)) for file in (root / 'app/src/main').rglob('*') if file.is_file() and file.name != '.gitkeep'}
 assert actual_main == locked_main, f'Obsolete/missing app files: {actual_main ^ locked_main}'
 build = (root / 'app/build.gradle').read_text()
-assert "versionName '3.7.0'" in build and 'versionCode 47;' in build
+assert "versionName '3.8.0'" in build and 'versionCode 48;' in build
 assert "implementation 'org.apache.commons:commons-lang3:3.4'" in build
 assert 'android.nonFinalResIds=false' in (root / 'gradle.properties').read_text()
 src = root / 'app/src/main'
@@ -44,6 +44,7 @@ components = {
     'wake': 'com.pixeldt2w.module.DoubleTapWakeHook',
     'speaker': 'dev.chet.speakercontrol.SpeakerHook',
     'pie': 'dev.chet.chromepiestatusmatch.ChromePie',
+    'notification_tap': 'dev.chet.mypixelmodpack.NotificationIconTapModule',
 }
 dispatcher = (java / 'dev/chet/mypixelmodpack/PackDispatcher.java').read_text()
 home = (java / 'dev/chet/mypixelmodpack/HomeActivity.java').read_text()
@@ -51,7 +52,7 @@ for feature, cls in components.items():
     assert (java / (cls.replace('.', '/') + '.java')).is_file(), cls
     assert f'install("{feature}", switches' in dispatcher, feature
     assert f'{{"{feature}",' in home, feature
-    assert f'new {cls}()' in dispatcher, cls
+    assert f'new {cls}()' in dispatcher or (feature == 'notification_tap' and 'new NotificationIconTapModule()' in dispatcher), cls
 
 # Independent appearance stores, read by settings UI and hooks.
 for package, store in [('navdotstyle', 'nav_icons_v2'), ('navbarmatch', 'nav_match_v2')]:
@@ -83,7 +84,7 @@ assert 'install("settings_entry", switches' in dispatcher
 assert '"com.android.settings".equals(pkg)' in dispatcher
 assert '"settings_entry"' in home
 assert 'my_pixel_mod_pack_shortcut' in (java / 'dev/chet/mypixelmodpack/SettingsShortcutModule.java').read_text()
-print('Verified single legacy dispatcher, eleven components, optional Settings shortcut, UI, XML and independent providers')
+print('Verified single legacy dispatcher, twelve components, optional Settings shortcut, UI, XML and independent providers')
 
 pack_provider = next(p for p in manifest.iter('provider') if p.get(android + 'authorities') == 'dev.chet.mypixelmodpack.settings.v2')
 assert pack_provider.get(android + 'grantUriPermissions') == 'true'
@@ -98,7 +99,7 @@ assert {'android.permission.KILL_BACKGROUND_PROCESSES', 'android.permission.EXPA
 assert 'charging_animation' in (java / 'dev/chet/batterygradient/SettingsProvider.java').read_text()
 assert 'new AnimatedBatteryView' in (java / 'dev/chet/batterygradient/BatteryModule.java').read_text()
 assert 'chromepie_v1' in (java / 'dev/chet/mypixelmodpack/PackSettingsProvider.java').read_text()
-print('Verified complete 3.7.0 sources, dependencies, permissions and charging animation')
+print('Verified complete 3.8.0 sources, dependencies, permissions and charging animation')
 
 assert "android.permission.RECEIVE_BOOT_COMPLETED" in permissions
 receiver = next(p for p in manifest.iter("receiver") if p.get(android + "name") == "dev.chet.mypixelmodpack.AccessRefreshReceiver")

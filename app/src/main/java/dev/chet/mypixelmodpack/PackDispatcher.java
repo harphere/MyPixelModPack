@@ -97,6 +97,7 @@ public final class PackDispatcher implements IXposedHookLoadPackage, IXposedHook
         PackRuntime.report("startup", "settings snapshot read; context ready");
         String pkg = load.packageName;
         if (UI.equals(pkg)) {
+            install("notification_tap", switches, () -> new NotificationIconTapModule().handleLoadPackage(load));
             install("battery", switches, () -> new dev.chet.batterygradient.BatteryModule().handleLoadPackage(load));
             install("mobile", switches, () -> {
                 mobile = new dev.chet.mobiletypeframe.MobileTypeFrame();

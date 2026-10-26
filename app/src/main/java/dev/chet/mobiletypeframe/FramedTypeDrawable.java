@@ -101,20 +101,20 @@ public final class FramedTypeDrawable extends Drawable {
         canvas.restoreToCount(save);paint.setStrokeCap(Paint.Cap.BUTT);
     }
     private void drawWaves(Canvas canvas,Rect b) {
-        float h=b.height(),scale=glyphScale(b.width(),h,true);
+        float h=b.height(),scale=glyphScale(b.width()-h*.35f,h,false);
         float emWidth=label.length()*7.8f-1.8f;
-        float cx=b.exactCenterX()-.08f*h;
-        // Same letter height and paths as K/H; reserve top space for scaled waves.
-        float cy=b.bottom-.06f*h-4.5f*scale;
-        paint.setColor(color);paint.setAlpha(alpha);paint.setColorFilter(filter);
+        // Use a full-height wave beside the top of G instead of a tiny arc squeezed above it.
+        float radius=h*.31f, stroke=h*.065f;
+        float cx=b.left+(b.width()-radius-stroke)/2f;
+        float cy=b.exactCenterY();
+        paint.setColor(color);paint.setColorFilter(filter);
         drawLetters(canvas,cx,cy,scale,1.65f);
-        float x=cx+emWidth*scale/2f-.7f*scale;
-        float top=cy-4.5f*scale;
-        float radius=1.7f*scale,y=top-2.65f*scale;
+        float x=cx+emWidth*scale/2f+stroke;
+        float y=b.top+stroke;
         android.graphics.Path waves=new android.graphics.Path();
         waves.moveTo(x,y);waves.quadTo(x+radius,y,x+radius,y+radius);
-        waves.moveTo(x,y+radius*.60f);waves.quadTo(x+radius*.40f,y+radius*.60f,x+radius*.40f,y+radius);
-        paint.setStyle(Paint.Style.STROKE);paint.setStrokeCap(Paint.Cap.ROUND);paint.setStrokeWidth(.50f*scale);
+        waves.moveTo(x,y+radius*.55f);waves.quadTo(x+radius*.45f,y+radius*.55f,x+radius*.45f,y+radius);
+        paint.setStyle(Paint.Style.STROKE);paint.setStrokeCap(Paint.Cap.ROUND);paint.setStrokeWidth(stroke);
         canvas.drawPath(waves,paint);paint.setStrokeCap(Paint.Cap.BUTT);
     }
 
@@ -198,7 +198,7 @@ public final class FramedTypeDrawable extends Drawable {
         // Widen the artwork to let larger letters retain their requested text size.
         float inset = Math.max(.7f, 16f * .07f);
         float width = Math.max(em,6f+label.length()*6.8f*fontPercent/100f);
-        if(ShapeProvider.WAVES.equals(shape)) width+=16f*.27f;
+        if(ShapeProvider.WAVES.equals(shape)) width+=16f*.55f;
         return Math.round(width*density);
     }
 

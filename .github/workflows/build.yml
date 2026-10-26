@@ -1,4 +1,4 @@
-name: Build MyPixelModPack 3.7.0
+name: Build MyPixelModPack 3.8.0
 on: [workflow_dispatch, push]
 jobs:
   build:
@@ -33,9 +33,9 @@ jobs:
       - name: Verify APK version and signature
         run: |
           python3 scripts/check_apk.py app/build/outputs/apk/release/app-release.apk
-          cp app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/MyPixelModPack-3.7.0.apk
+          cp app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/MyPixelModPack-3.8.0.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: MyPixelModPack-3.7.0
-          path: app/build/outputs/apk/release/MyPixelModPack-3.7.0.apk
+          name: MyPixelModPack-3.8.0
+          path: app/build/outputs/apk/release/MyPixelModPack-3.8.0.apk
           if-no-files-found: error

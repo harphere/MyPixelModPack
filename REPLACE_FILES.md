@@ -1,3 +1,3 @@
-# Update to 3.7.0
+# Install source 3.8.0
 
-Replace the complete repository source, including .github, Gradle files, scripts and source lock. Run Build MyPixelModPack 3.7.0 in Actions, install its APK as an update and reboot. Battery gradient > Customize > Tap battery to open Battery settings enables the new shortcut. Mobile styles now share the H/K vector lettering and scale, with proportionally sized Waves. Existing scopes and saved settings remain.
+Replace the repository contents with the complete ZIP, including .github/workflows/build.yml, app/build.gradle, scripts and release-source-sha256.json. Avoid mixing files from earlier releases. Run the included GitHub Actions workflow, install MyPixelModPack-3.8.0.apk, then enable Status bar → Tap notification icons and reboot. The battery tap switch remains under Battery gradient → Customize.

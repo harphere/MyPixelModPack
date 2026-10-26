@@ -1,3 +1,5 @@
-# Validation — 3.7.0
+# 3.8.0 validation
 
-All battery Java classes and modified mobile drawable/provider compiled locally using JDK 17 with Android/Xposed API jars and the previously compiled PackRuntime API. Complete-source/component/XML checks passed. Added BatteryShortcutSettingsTest covering default-off, enabling/disabling, invalid value rejection and preservation of appearance settings. Android unit tests, release build and lint have not been run locally; the supplied Actions workflow runs them and verifies APK version/signature. The Battery settings launch, touch target, keyguard behaviour, mobile letter size and wave clearance need phone testing. Preserves 3.6.1 DT2W and 3.6.0 diagnostic-test fix.
+Local validation: ten pure-Java gesture assertions passed (tap, drag cancellation, returning after drag, multi-touch, long press, explicit cancellation, fresh gesture and invalid timestamp). source integrity, manifest/XML checks, and Java compilation of changed runtime classes against Android/Xposed APIs. Full Android unit tests, lint and APK packaging run in the included GitHub Actions workflow. No physical-device testing is claimed.
+
+Device checks: enable Tap notification icons, reboot, test each app separately and with all three present. Each tap should open exactly one app; swipe down, long press and unsupported icons should retain normal behaviour. Check locked-screen behaviour. Inspect Waves at each font size and LTE/4G/5G labels for clipping. Existing battery tap is independently configured under Battery gradient → Customize.

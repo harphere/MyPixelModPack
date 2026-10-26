@@ -32,7 +32,8 @@ public final class HomeActivity extends Activity {
         {"network", "Network activity indicator", "com.chet.networkactivity.SettingsActivity"},
         {"wake", "Double Tap 2 Wake", ""},
         {"speaker", "SpeakerControl", "dev.chet.speakercontrol.MainActivity"},
-        {"pie", "ChromePie Status Match", "dev.chet.chromepiestatusmatch.settings.PieSettings"}
+        {"pie", "ChromePie Status Match", "dev.chet.chromepiestatusmatch.settings.PieSettings"},
+        {"notification_tap", "Tap notification icons", ""}
     };
     private SharedPreferences prefs;
     private LinearLayout page;
@@ -78,7 +79,7 @@ public final class HomeActivity extends Activity {
                         if(tag instanceof String && ((String)tag).startsWith("category:"))child.setVisibility(((String)tag).contains(q)?View.VISIBLE:View.GONE);}}
                 public void afterTextChanged(android.text.Editable text){}
             });
-            navigation("Status bar","Battery, mobile icons and network activity",new int[]{0,2,3,7});
+            navigation("Status bar","Battery, mobile icons and network activity",new int[]{0,2,3,7,11});
             navigation("Navigation","Icons, OPA animation, cursor arrows and colours",new int[]{1,4,5,6});
             navigation("Calls & browser","Speakerphone commands and ChromePie",new int[]{9,10});
             navigation("Screen & wake","Double Tap to Wake",new int[]{8});
@@ -99,7 +100,7 @@ public final class HomeActivity extends Activity {
             action("Startup diagnostics","View process reports and copy the full log",this::diagnostics);
             action("Scope & restart help","Which processes need to restart",this::help);
         } else {
-            int[] indices="Status bar".equals(section)?new int[]{0,2,3,7}:"Navigation".equals(section)?new int[]{1,4,5,6}:"Calls & browser".equals(section)?new int[]{9,10}:new int[]{8};
+            int[] indices="Status bar".equals(section)?new int[]{0,2,3,7,11}:"Navigation".equals(section)?new int[]{1,4,5,6}:"Calls & browser".equals(section)?new int[]{9,10}:new int[]{8};
             note(page,"Switch changes take effect after the relevant process restarts or the phone reboots.");
             for(int i:indices) feature(i);
         }
@@ -147,6 +148,7 @@ public final class HomeActivity extends Activity {
     }
     private String description(String key) {
         switch(key) {
+            case "notification_tap": return "Tap a visible AquaMail, YAATA or Phone notification icon to open that app. One app per tap; drags still open the shade. Unlocked screen only. Scope: System UI. Restart System UI or reboot after enabling.";
             case "speaker": return "Phone and WhatsApp calls. Scope: default Phone app/InCall UI plus WhatsApp. Choose the target in SpeakerControl; existing Tasker actions and TOKEN remain supported.";
             case "pie": return "ChromePie menu with status-bar colour matching. Scope: Titanium or supported Chromium browser. Configure the menu here; restart the browser after changes.";
             case "battery": return "Gradient battery styles and placement. Scope: System UI.";
