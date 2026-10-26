@@ -18,7 +18,7 @@ public class BatteryRenderingTest {
     }
     private Bitmap render(String style,int level,boolean percentage,boolean charging) {
         GradientBatteryDrawable d=new GradientBatteryDrawable();
-        // Static artwork tests isolate the bolt; ChargingAnimationTest covers pulses.
+        // With animation disabled, charging adds no overlay; ChargingAnimationTest covers pulses.
         d.setAnimationEnabled(false);
         d.setShowPercentage(percentage);d.setCharging(charging);
         d.setStyle(style); d.setLevelPercent(level); d.setBounds(0,0,320,240);
@@ -59,14 +59,12 @@ public class BatteryRenderingTest {
             assertEquals(hidden.getPixel(120,60),shown.getPixel(120,60));
         }
     }
-    @Test public void chargingBoltOccupiesOnlyRightLane() {
+    @Test public void chargingAddsNoBoltWhenAnimationIsDisabled() {
         for(String style:new String[]{SettingsProvider.FILLED,SettingsProvider.PORTRAIT,
                 SettingsProvider.DASHED,SettingsProvider.CIRCLE}) {
             Bitmap idle=render(style,75,false,false),charging=render(style,75,false,true);
-            for(int y=0;y<240;y++)for(int x=0;x<240;x++)
-                assertEquals(idle.getPixel(x,y),charging.getPixel(x,y));
-            assertEquals(0,Color.alpha(idle.getPixel(270,110)));
-            assertTrue(Color.alpha(charging.getPixel(270,110))>200);
+            assertTrue(idle.sameAs(charging));
+            assertEquals(0,Color.alpha(charging.getPixel(270,110)));
         }
     }
     @Test public void percentagePreferenceDefaultsOffAndSurvivesStyleOverride() {

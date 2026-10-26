@@ -1,3 +1,7 @@
+# My Pixel Mod Pack 3.8.2
+
+Larger, bolder Waves artwork with the same lettering, plus removal of the charging lightning bolt. See docs/WAVES_3.8.2.md. Notification-icon tap fixes are retained unchanged.
+
 # My Pixel Mod Pack 3.8.1
 
 Notification-icon tap correction: full-height touch targets, actual ROM dispatch hook, launch fallback and tap diagnostics. See docs/NOTIFICATION_TAPS_3.8.1.md.

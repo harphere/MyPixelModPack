@@ -18,7 +18,7 @@ import android.graphics.drawable.Drawable;
 public final class GradientBatteryDrawable extends Drawable {
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private int level = 75;
-    private boolean charging, activelyCharging;
+    private boolean activelyCharging;
     private boolean showPercentage;
     private boolean animationEnabled = true, animationRunning;
     private long animationStart;
@@ -63,7 +63,7 @@ public final class GradientBatteryDrawable extends Drawable {
         updateAnimation();
         invalidateSelf();
     }
-    public void setCharging(boolean value) { charging = value; activelyCharging = value; updateAnimation(); invalidateSelf(); }
+    public void setCharging(boolean value) { activelyCharging = value; updateAnimation(); invalidateSelf(); }
     public void setActivelyCharging(boolean value) { activelyCharging = value; updateAnimation(); invalidateSelf(); }
     public void setShowPercentage(boolean value) { showPercentage = value; invalidateSelf(); }
     public void setStyle(String value) { style = value; invalidateSelf(); }
@@ -170,22 +170,6 @@ public final class GradientBatteryDrawable extends Drawable {
             canvas.drawText(label, 12.25f, 15.4f, paint);
             paint.setColor(Color.WHITE);
             canvas.drawText(label, 11.85f, 15f, paint);
-        }
-        if (charging) {
-            // Dedicated right-hand lane: never cover the battery colour or label.
-            Path bolt = new Path();
-            bolt.moveTo(28.5f, 4f); bolt.lineTo(24.5f, 13f);
-            bolt.lineTo(28f, 13f); bolt.lineTo(26f, 20f);
-            bolt.lineTo(31.5f, 10f); bolt.lineTo(28f, 10f);
-            bolt.lineTo(30f, 4f); bolt.close();
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(.8f);
-            paint.setStrokeJoin(Paint.Join.ROUND);
-            paint.setColor(Color.argb(220, 18, 27, 25));
-            canvas.drawPath(bolt, paint);
-            paint.setStyle(Paint.Style.FILL);
-            paint.setColor(Color.WHITE);
-            canvas.drawPath(bolt, paint);
         }
         canvas.restoreToCount(saved);
     }
