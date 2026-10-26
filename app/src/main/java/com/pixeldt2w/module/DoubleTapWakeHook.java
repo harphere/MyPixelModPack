@@ -29,9 +29,10 @@ public final class DoubleTapWakeHook implements IXposedHookLoadPackage {
 
     // com.android.systemui.doze.DozeTriggers.REASON_SENSOR_TAP
     private static final int REASON_SENSOR_TAP = 9;
-    private static final long DOUBLE_TAP_WINDOW_MS = 400L;
+    private static final long DOUBLE_TAP_WINDOW_MS = TapWindow.WINDOW_MS;
 
-    private final AtomicBoolean waitingForSecondTap = new AtomicBoolean(false);
+    private final TapWindow tapWindow = new TapWindow();
+    private android.os.PowerManager.WakeLock tapWakeLock;
     private final AtomicBoolean modernPulsingHookInstalled = new AtomicBoolean(false);
     private final AtomicBoolean legacyPulsingHookInstalled = new AtomicBoolean(false);
 
@@ -47,6 +48,15 @@ public final class DoubleTapWakeHook implements IXposedHookLoadPackage {
 
         try {
             mainHandler = new Handler(Looper.getMainLooper());
+            if (!SYSTEM_UI.equals(lpparam.processName)) return;
+            try {
+                android.content.Context context = dev.chet.mypixelmodpack.PackRuntime.hostContext();
+                android.os.PowerManager power = (android.os.PowerManager) context.getSystemService(android.content.Context.POWER_SERVICE);
+                if (power != null) {
+                    tapWakeLock = power.newWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK, "MyPixelModPack:DT2W");
+                    tapWakeLock.setReferenceCounted(false);
+                }
+            } catch (Throwable error) { log("brief tap wake lock unavailable: " + error); }
             log("loading in process=" + lpparam.processName);
 
             installDozeSensorHooks(lpparam.classLoader);
@@ -81,12 +91,14 @@ public final class DoubleTapWakeHook implements IXposedHookLoadPackage {
         XposedBridge.hookAllConstructors(triggerSensorClass, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) {
-                Integer pulseReason = readPulseReason(param.thisObject);
-                if (pulseReason != null && pulseReason == REASON_SENSOR_TAP) {
-                    tapTriggerSensor = param.thisObject;
-                    log("captured tap TriggerSensor, class="
-                            + param.thisObject.getClass().getName());
-                }
+                captureTapSensor(param.thisObject);
+            }
+        });
+
+        // Capture an existing/recreated sensor on normal listener updates too.
+        XposedBridge.hookAllMethods(triggerSensorClass, "updateListening", new XC_MethodHook() {
+            @Override protected void afterHookedMethod(MethodHookParam param) {
+                captureTapSensor(param.thisObject);
             }
         });
 
@@ -110,42 +122,62 @@ public final class DoubleTapWakeHook implements IXposedHookLoadPackage {
                         return;
                     }
 
-                    if (!waitingForSecondTap.get()) {
-                        Object trigger = tapTriggerSensor;
-
-                        // Never swallow the first tap unless we can re-arm the
-                        // underlying trigger immediately. This prevents a broken
-                        // hook from making the screen impossible to tap-wake.
-                        if (trigger == null) {
-                            log("tap event received but TriggerSensor not captured; fail-open");
-                            return;
-                        }
-                        if (!rearmTapSensor(trigger)) {
-                            log("tap TriggerSensor re-arm failed; fail-open");
-                            return;
-                        }
-
-                        try {
-                            scheduleTapWindowReset();
-                            waitingForSecondTap.set(true);
-                        } catch (Throwable error) {
-                            waitingForSecondTap.set(false);
-                            log("tap reset scheduling failed; retaining stock wake: " + error);
-                            return;
-                        }
-                        param.setResult(null);
-                        log("first doze tap suppressed; 400 ms window opened");
-                    } else {
+                    long now = android.os.SystemClock.elapsedRealtime();
+                    TapWindow.Result result = tapWindow.tap(now);
+                    if (result == TapWindow.Result.SECOND) {
                         cancelTapWindowReset();
-                        waitingForSecondTap.set(false);
-                        log("second doze tap accepted; stock SystemUI wake continues");
+                        // Keep the short CPU hold until stock onSensor has returned.
+                        log("second doze tap accepted at elapsed=" + now + "; stock wake continues");
+                        return;
                     }
+                    Object trigger = tapTriggerSensor;
+                    if (trigger == null || !rearmTapSensor(trigger)) {
+                        tapWindow.reset(); cancelTapWindowReset(); releaseTapWakeLock();
+                        log("tap sensor not ready; retaining stock wake");
+                        return;
+                    }
+                    if (result == TapWindow.Result.DUPLICATE) {
+                        param.setResult(null);
+                        log("duplicate sensor event ignored at elapsed=" + now);
+                        return;
+                    }
+                    try {
+                        holdTapWakeLock();
+                        scheduleTapWindowReset();
+                    } catch (Throwable error) {
+                        tapWindow.reset(); releaseTapWakeLock();
+                        log("tap window setup failed; retaining stock wake: " + error);
+                        return;
+                    }
+                    param.setResult(null);
+                    log("first doze tap suppressed at elapsed=" + now + "; 500 ms window; CPU hold="
+                            + (tapWakeLock != null && tapWakeLock.isHeld()));
+                }
+                @Override protected void afterHookedMethod(MethodHookParam param) {
+                    if (param.args.length > 0 && Integer.valueOf(REASON_SENSOR_TAP).equals(param.args[0])
+                            && resetTapWindow == null) releaseTapWakeLock();
                 }
             });
             hookedCount++;
         }
 
         log("DozeTriggers.onSensor hooks installed=" + hookedCount);
+    }
+
+    private void captureTapSensor(Object sensor) {
+        Integer reason = readPulseReason(sensor);
+        if (reason != null && reason == REASON_SENSOR_TAP && tapTriggerSensor != sensor) {
+            tapWindow.reset(); cancelTapWindowReset(); releaseTapWakeLock();
+            tapTriggerSensor = sensor;
+            log("captured tap TriggerSensor, class=" + sensor.getClass().getName());
+        }
+    }
+    private void holdTapWakeLock() {
+        if (tapWakeLock != null) tapWakeLock.acquire(DOUBLE_TAP_WINDOW_MS + 150L);
+    }
+    private void releaseTapWakeLock() {
+        try { if (tapWakeLock != null && tapWakeLock.isHeld()) tapWakeLock.release(); }
+        catch (RuntimeException error) { log("tap wake lock release: " + error); }
     }
 
     private Integer readPulseReason(Object triggerSensor) {
@@ -165,7 +197,11 @@ public final class DoubleTapWakeHook implements IXposedHookLoadPackage {
     private boolean rearmTapSensor(Object trigger) {
         try {
             XposedHelpers.callMethod(trigger, "updateListening");
-            return true;
+            // updateListening can return normally without requesting registration.
+            // This checks SystemUI bookkeeping, not physical sensor/HAL readiness.
+            boolean registered = XposedHelpers.getBooleanField(trigger, "mRegistered");
+            if (!registered) log("tap re-arm returned but mRegistered=false");
+            return registered;
         } catch (Throwable t) {
             log("updateListening() failed: " + t.getClass().getSimpleName()
                     + (t.getMessage() == null ? "" : " - " + t.getMessage()));
@@ -176,11 +212,15 @@ public final class DoubleTapWakeHook implements IXposedHookLoadPackage {
     private void scheduleTapWindowReset() {
         cancelTapWindowReset();
         resetTapWindow = () -> {
-            waitingForSecondTap.set(false);
+            tapWindow.reset();
             resetTapWindow = null;
+            releaseTapWakeLock();
             log("double-tap window expired");
         };
-        mainHandler.postDelayed(resetTapWindow, DOUBLE_TAP_WINDOW_MS);
+        if (!mainHandler.postDelayed(resetTapWindow, DOUBLE_TAP_WINDOW_MS)) {
+            resetTapWindow = null;
+            throw new IllegalStateException("Tap timer handler rejected callback");
+        }
     }
 
     private void cancelTapWindowReset() {
@@ -236,10 +276,14 @@ public final class DoubleTapWakeHook implements IXposedHookLoadPackage {
 
         boolean doubleTapFound = false;
         for (Method method : pulsingClass.getDeclaredMethods()) {
-            if ("onDoubleTapEvent".equals(method.getName())) {
-                doubleTapFound = true;
-                break;
-            }
+            if (!"onDoubleTapEvent".equals(method.getName())) continue;
+            doubleTapFound = true;
+            // No-arg helper exists on A16; log its outcome without modifying it.
+            if (method.getParameterTypes().length == 0) XposedBridge.hookMethod(method, new XC_MethodHook() {
+                @Override protected void afterHookedMethod(MethodHookParam param) {
+                    log("native pulsing double tap returned=" + param.getResult());
+                }
+            });
         }
         log("native PulsingGestureListener.onDoubleTapEvent present=" + doubleTapFound);
     }

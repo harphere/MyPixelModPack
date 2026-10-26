@@ -79,57 +79,43 @@ public final class FramedTypeDrawable extends Drawable {
                     height * 0.14f, height * 0.14f, paint);
         }
 
-        paint.setStyle(Paint.Style.FILL);
-        paint.setTextAlign(Paint.Align.CENTER);
-        boolean unboxed = ShapeProvider.WAVES.equals(shape);
-        float availableWidth = width - (unboxed ? 2f : 4.4f) * inset;
-        float availableHeight = height - (unboxed ? 2.5f : 3.5f) * inset;
-        paint.setTextSize(availableHeight * 0.94f * fontPercent / 100f);
-        float measured = paint.measureText(label);
-        if (measured > availableWidth) paint.setTextSize(paint.getTextSize() * availableWidth / measured);
-        Paint.FontMetrics fm = paint.getFontMetrics();
-        float baseline = b.exactCenterY() - (fm.ascent + fm.descent) / 2f
-                + (ShapeProvider.WAVES.equals(shape) ? height * .10f : 0f);
-        float textCenter = b.exactCenterX();
+        float scale = glyphScale(width, height, false);
         if (ShapeProvider.FILLED.equals(shape)) {
             paint.setColorFilter(null);
             paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-            canvas.drawText(label, textCenter, baseline, paint);
-            paint.setXfermode(null);
-            canvas.restore();
-        } else {
-            canvas.drawText(label, textCenter, baseline, paint);
-        }
+            drawLetters(canvas,b.exactCenterX(),b.exactCenterY(),scale,1.65f);
+            paint.setXfermode(null);canvas.restore();
+        } else drawLetters(canvas,b.exactCenterX(),b.exactCenterY(),scale,1.65f);
     }
 
-    private void drawWaves(Canvas canvas, Rect b) {
-        float h = b.height();
-        paint.setColor(color); paint.setAlpha(alpha); paint.setColorFilter(filter);
-        paint.setStyle(Paint.Style.FILL); paint.setTextAlign(Paint.Align.CENTER);
-        paint.setTextSize(h * .68f * fontPercent / 150f);
-        float availableWidth = b.width() - .45f * h;
-        float measured = paint.measureText(label);
-        if (measured > availableWidth) paint.setTextSize(paint.getTextSize() * availableWidth / measured);
-        Rect ink = new Rect(); paint.getTextBounds(label, 0, label.length(), ink);
-        if (ink.height() > .52f * h) {
-            paint.setTextSize(paint.getTextSize() * .52f * h / ink.height());
-            paint.getTextBounds(label, 0, label.length(), ink);
-        }
-        float baseline = b.bottom - .06f * h - ink.bottom;
-        float center = b.exactCenterX() - .10f * h;
-        canvas.drawText(label, center, baseline, paint);
-        // Approved Option C: two clockwise quarter-waves, raised clear of
-        // the glyph, tucked left toward its upper-right corner.
-        float x = center + paint.measureText(label) / 2f - .07f * h;
-        float y = baseline + ink.top - .30f * h;
-        android.graphics.Path waves = new android.graphics.Path();
-        waves.moveTo(x, y);
-        waves.quadTo(x + .25f * h, y, x + .25f * h, y + .25f * h);
-        waves.moveTo(x, y + .15f * h);
-        waves.quadTo(x + .10f * h, y + .15f * h, x + .10f * h, y + .25f * h);
-        paint.setStyle(Paint.Style.STROKE); paint.setStrokeWidth(.0575f * h);
-        paint.setStrokeCap(Paint.Cap.ROUND); canvas.drawPath(waves, paint);
-        paint.setStrokeCap(Paint.Cap.BUTT);
+    private float glyphScale(float width,float height,boolean waves) {
+        float emWidth=label.length()*7.8f-1.8f;
+        return Math.min((width-height*(waves?.60f:.33f))/emWidth,
+                height*.63f/9f*fontPercent/150f);
+    }
+    private void drawLetters(Canvas canvas,float cx,float cy,float scale,float weight) {
+        float emWidth=label.length()*7.8f-1.8f;
+        int save=canvas.save();canvas.translate(cx-emWidth*scale/2f,cy-4.5f*scale);canvas.scale(scale,scale);
+        paint.setStyle(Paint.Style.STROKE);paint.setStrokeCap(Paint.Cap.ROUND);paint.setStrokeJoin(Paint.Join.ROUND);paint.setStrokeWidth(weight);
+        for(int i=0;i<label.length();i++){canvas.drawPath(roundedGlyph(label.charAt(i)),paint);canvas.translate(7.8f,0);}
+        canvas.restoreToCount(save);paint.setStrokeCap(Paint.Cap.BUTT);
+    }
+    private void drawWaves(Canvas canvas,Rect b) {
+        float h=b.height(),scale=glyphScale(b.width(),h,true);
+        float emWidth=label.length()*7.8f-1.8f;
+        float cx=b.exactCenterX()-.08f*h;
+        // Same letter height and paths as K/H; reserve top space for scaled waves.
+        float cy=b.bottom-.06f*h-4.5f*scale;
+        paint.setColor(color);paint.setAlpha(alpha);paint.setColorFilter(filter);
+        drawLetters(canvas,cx,cy,scale,1.65f);
+        float x=cx+emWidth*scale/2f-.7f*scale;
+        float top=cy-4.5f*scale;
+        float radius=1.7f*scale,y=top-2.65f*scale;
+        android.graphics.Path waves=new android.graphics.Path();
+        waves.moveTo(x,y);waves.quadTo(x+radius,y,x+radius,y+radius);
+        waves.moveTo(x,y+radius*.60f);waves.quadTo(x+radius*.40f,y+radius*.60f,x+radius*.40f,y+radius);
+        paint.setStyle(Paint.Style.STROKE);paint.setStrokeCap(Paint.Cap.ROUND);paint.setStrokeWidth(.50f*scale);
+        canvas.drawPath(waves,paint);paint.setStrokeCap(Paint.Cap.BUTT);
     }
 
     private void drawRoundedBadge(Canvas canvas, Rect b) {
@@ -211,22 +197,11 @@ public final class FramedTypeDrawable extends Drawable {
         // Keep the intrinsic height at 16dp: SystemUI constrains the icon view's height.
         // Widen the artwork to let larger letters retain their requested text size.
         float inset = Math.max(.7f, 16f * .07f);
-        if (ShapeProvider.KARYL.equals(shape) || ShapeProvider.NISHIKI.equals(shape)
-                || ShapeProvider.HADAUN.equals(shape)) {
-            // Widen as the selected letter size increases; keep the badge 16dp tall.
-            return Math.round(Math.max(em, 6f + label.length() * 6.8f * fontPercent / 100f) * density);
-        }
-        if (ShapeProvider.WAVES.equals(shape)) {
-            paint.setTextSize(16f * .68f * fontPercent / 150f * density);
-            return Math.round(Math.max(em * density, paint.measureText(label) + 16f * .45f * density));
-        }
-        boolean unboxed = ShapeProvider.WAVES.equals(shape);
-        paint.setTextSize((16f - (unboxed ? 2.5f : 3.5f) * inset)
-                * .94f * fontPercent / 100f * density);
-        float textWidth = paint.measureText(label);
-        float minimumWidth = textWidth + (unboxed ? 2f : 4.4f) * inset * density;
-        return Math.round(Math.max(em * density, minimumWidth));
+        float width = Math.max(em,6f+label.length()*6.8f*fontPercent/100f);
+        if(ShapeProvider.WAVES.equals(shape)) width+=16f*.27f;
+        return Math.round(width*density);
     }
+
     @Override public int getIntrinsicHeight() { return Math.round(16f * density); }
     @Override public void setAlpha(int value) { alpha = value; invalidateSelf(); }
     @Override public void setColorFilter(ColorFilter value) { filter = value; invalidateSelf(); }

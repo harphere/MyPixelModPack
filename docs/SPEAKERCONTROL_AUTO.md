@@ -1,4 +1,4 @@
-# Auto SpeakerControl — 3.6.0
+# Auto SpeakerControl — 3.7.0
 
 ## Tasker setup
 Use Send Intent. Action: dev.chet.speakercontrol.TOGGLE. Package: dev.chet.mypixelmodpack. Target: Broadcast Receiver. Keep TOKEN:<the value shown in the Pack SpeakerControl screen>. Class and Data: blank. Optional reply_package:net.dinglisch.android.taskerm and request_id:<your correlation value>. ENABLE, DISABLE and STATUS work through the same Auto receiver. Existing tasks targeting a dialer or WhatsApp package continue to target that app explicitly.

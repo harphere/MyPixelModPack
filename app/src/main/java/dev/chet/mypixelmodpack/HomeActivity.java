@@ -177,7 +177,7 @@ public final class HomeActivity extends Activity {
     }
     private void diagnostics() {
         StringBuilder text=new StringBuilder("My Pixel Mod Pack "+BuildConfig.VERSION_NAME+"\nSaved switches (restart required):\n");
-        text.append("versionCode=").append(BuildConfig.VERSION_CODE).append("; build_id=pack-3.6.0-r1\n");
+        text.append("versionCode=").append(BuildConfig.VERSION_CODE).append("; build_id=pack-3.7.0-r1\n");
         for(String[] f:FEATURES) text.append(f[0]).append('=').append(prefs.getBoolean(f[0],false)).append('\n');
         android.os.Bundle batteryOptions=dev.chet.batterygradient.SettingsProvider.getDisplayOptions(this);
         text.append("\nBattery settings: style=").append(batteryOptions.getString("style"))

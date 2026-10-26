@@ -98,6 +98,11 @@ public final class SettingsActivity extends Activity {
             preview.setShowPercentage(checked);
         });
         root.addView(percentage);
+        Switch tapSettings = new Switch(this); tapSettings.setText("Tap battery to open Battery settings");
+        tapSettings.setChecked(SettingsProvider.getDisplayOptions(this).getBoolean("tap_settings",false));
+        tapSettings.setOnCheckedChangeListener((button,checked) -> getContentResolver().call(
+                SettingsProvider.URI,"set_tap_settings",String.valueOf(checked),null));
+        root.addView(tapSettings);
         Switch animation = new Switch(this); animation.setText("Charging animation");
         animation.setChecked(SettingsProvider.getDisplayOptions(this).getBoolean("charging_animation", true));
         preview.setAnimationEnabled(animation.isChecked());

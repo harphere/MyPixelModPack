@@ -1,4 +1,4 @@
-# SpeakerControl — WhatsApp (3.6.0)
+# SpeakerControl — WhatsApp (3.7.0)
 
 ## Install
 Build the complete source using the included Actions workflow. Install as an update, keep SpeakerControl enabled, and scope the Pack to WhatsApp (com.whatsapp), plus your existing Phone app/InCall UI. Optional WhatsApp Business package: com.whatsapp.w4b. Reboot, or restart WhatsApp after the scope change. Open the Pack and Refresh app access if its settings are unavailable.

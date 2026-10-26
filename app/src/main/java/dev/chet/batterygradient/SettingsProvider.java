@@ -99,6 +99,11 @@ public final class SettingsProvider extends ContentProvider {
             context.getSharedPreferences("battery", 0).edit().putBoolean("charging_animation", Boolean.parseBoolean(arg)).apply();
             context.getContentResolver().notifyChange(URI, null);
         }
+        if ("set_tap_settings".equals(method) && Binder.getCallingUid() == Process.myUid()
+                && ("true".equals(arg) || "false".equals(arg))) {
+            context.getSharedPreferences("battery",0).edit().putBoolean("tap_settings",Boolean.parseBoolean(arg)).apply();
+            context.getContentResolver().notifyChange(URI,null);
+        }
         if ("set_percentage".equals(method) && Binder.getCallingUid() == Process.myUid()
                 && ("true".equals(arg) || "false".equals(arg))) {
             context.getSharedPreferences("battery", 0).edit()
@@ -122,6 +127,7 @@ public final class SettingsProvider extends ContentProvider {
             context.getSharedPreferences("battery", 0).edit()
                     .putString("status", when + " — " + safe).apply();
         }
+        out.putBoolean("tap_settings",context.getSharedPreferences("battery",0).getBoolean("tap_settings",false));
         out.putBoolean("charging_animation", context.getSharedPreferences("battery", 0).getBoolean("charging_animation", true));
         out.putBoolean("show_percentage", context.getSharedPreferences("battery", 0)
                 .getBoolean("show_percentage", false));

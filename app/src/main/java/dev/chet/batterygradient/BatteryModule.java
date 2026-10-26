@@ -344,6 +344,9 @@ public final class BatteryModule implements IXposedHookLoadPackage {
                     lp.width = width; lp.height = height; icon.setLayoutParams(lp);
                 }
             }
+            boolean tapSettings = options.getBoolean("tap_settings",false);
+            icon.setOnClickListener(tapSettings ? view -> BatterySettingsShortcut.open(view.getContext()) : null);
+            icon.setClickable(tapSettings); icon.setFocusable(tapSettings);
             drawable.setShowPercentage(options.getBoolean("show_percentage", false));
             drawable.setAnimationEnabled(options.getBoolean("charging_animation", true));
             icon.removeCallbacks(animationReport);

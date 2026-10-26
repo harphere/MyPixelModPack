@@ -1,10 +1,10 @@
-# My Pixel Mod Pack 3.6.0
+# My Pixel Mod Pack 3.7.0
 
-Adds Auto SpeakerControl and a PixelXpert-inspired category UI with rounded rows, pastel icon circles, search, refresh and navigation to diagnostics/settings. Retains all components, icon and charging changes, provider fixes, signing key and existing switches. VersionCode 45. Auto Tasker instructions: docs/SPEAKERCONTROL_AUTO.md.
+Adds an optional status-bar battery tap shortcut to Battery settings. Standard mobile badges and Waves now share the H/K vector lettering and sizing; Waves scales with the glyphs. Includes all 3.6.1 features and DT2W changes. VersionCode 47. See docs/BATTERY_SHORTCUT_AND_MOBILE_3.7.0.md.
 
 ## Build and update
 
-See REPLACE_FILES.md for the exact changed files. Upload the complete ZIP contents to the repository root, including the supplied workflow, Gradle files and release-source-sha256.json. Run **Build MyPixelModPack 3.6.0**, download its artifact, install **MyPixelModPack-3.6.0.apk** as an update and reboot. Confirm Version 3.6.0 on the home page. Settings and existing scopes are preserved. No System Framework scope is required.
+See REPLACE_FILES.md for the exact changed files. Upload the complete ZIP contents to the repository root, including the supplied workflow, Gradle files and release-source-sha256.json. Run **Build MyPixelModPack 3.7.0**, download its artifact, install **MyPixelModPack-3.7.0.apk** as an update and reboot. Confirm Version 3.7.0 on the home page. Settings and existing scopes are preserved. No System Framework scope is required.
 
 ## Battery controls
 

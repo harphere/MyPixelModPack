@@ -1,13 +1,3 @@
-# Validation — 3.6.0
+# Validation — 3.7.0
 
-Baseline: complete 3.5.0; versionCode 45. Adds Auto SpeakerControl routing and refreshes the home UI with a reference-inspired dark palette, pastel vector category icons, rounded rows, functional feature search, refresh/overflow controls, and Home/Diagnostics/Settings navigation. Light theme remains available through the system setting. Existing feature pages, switches and appearance settings are retained.
-
-## Local checks
-All SpeakerControl Java classes, PackUi, CategoryIconView, HomeActivity and battery SettingsProvider compiled against Android/Xposed API jars, using generated BuildConfig/provider API stubs as needed. Complete-source, component and XML checks pass. Added Android tests for one-target dispatch, duplicate/stale status reports, ambiguity, missing responses and invalid-token/unknown-package reports. These tests and the full Android suite, release compilation, lint and native UI preview renders were NOT run locally; the included Actions workflow runs the Android checks. This is not an on-device compatibility claim.
-
-## Limits
-WhatsApp detection/routing remains device-test dependent. Auto chooses one positive active backend from replies received during a one-second window, not an OS-wide authoritative inventory of calls. Full dynamic receiver/manifest delivery, Tasker operation, UI appearance and call routing require phone testing. No fabricated Update or download feature was added to the new navigation bar.
-
-## 3.6.0 buildfix
-
-User Actions run: 67 tests completed, one failure at HomeActivityTest.java:66. The automatic Application startup refresh can overwrite the diagnostics fixture before it is copied. The clipboard test now waits (bounded to five seconds) for the worker to finish, then seeds its expected value. All content assertions remain. No runtime or version changes. Source integrity checks pass locally; the corrected Android suite still needs an Actions run.
+All battery Java classes and modified mobile drawable/provider compiled locally using JDK 17 with Android/Xposed API jars and the previously compiled PackRuntime API. Complete-source/component/XML checks passed. Added BatteryShortcutSettingsTest covering default-off, enabling/disabling, invalid value rejection and preservation of appearance settings. Android unit tests, release build and lint have not been run locally; the supplied Actions workflow runs them and verifies APK version/signature. The Battery settings launch, touch target, keyguard behaviour, mobile letter size and wave clearance need phone testing. Preserves 3.6.1 DT2W and 3.6.0 diagnostic-test fix.
