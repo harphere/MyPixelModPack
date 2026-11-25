@@ -1,3 +1,7 @@
+# My Pixel Mod Pack 3.9.0
+
+Iconify dual-status-bar battery-row compatibility and an optional Hide roaming indicator (R) switch. See docs/ICONIFY_AND_ROAMING_3.9.0.md.
+
 # My Pixel Mod Pack 3.8.2
 
 Larger, bolder Waves artwork with the same lettering, plus removal of the charging lightning bolt. See docs/WAVES_3.8.2.md. Notification-icon tap fixes are retained unchanged.
